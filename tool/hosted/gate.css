@@ -219,6 +219,20 @@
 .gate-foot p { margin: 0; font-size: 12px; line-height: 1.55; color: var(--g-ink-2); }
 .gate-caveat { margin-top: 8px !important; color: var(--g-ink-3) !important; font-size: 11.5px !important; }
 .gate-caveat b { color: var(--g-ink-2); font-weight: 600; }
+.gate-docs { margin-top: 10px !important; }
+.gate-docs a {
+  display: inline-block;
+  color: var(--g-signal);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 5px 11px;
+  border: 1px solid var(--g-line);
+  border-radius: 999px;
+  transition: border-color .16s ease, background .16s ease;
+}
+.gate-docs a:hover { border-color: var(--g-signal); background: var(--g-slot); }
+.gate-docs a:focus-visible { outline: 2px solid var(--g-signal); outline-offset: 2px; }
 
 /* ---- unlock transition ------------------------------------------------- */
 #gate.leaving { animation: gate-out .34s ease-in forwards; }

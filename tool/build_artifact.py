@@ -14,14 +14,14 @@ import os
 import re
 import sys
 
+from pinutil import PIN_SALT, assert_absent, load_pin
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.abspath(os.path.join(ROOT, "..", "Farmkogls_Console_Hosted.html"))
 
-# Change PIN here and rebuild. It is stored as a salted hash so the number is
-# not sitting in plain sight — but four digits is 10,000 guesses, so treat this
-# as a light lock between people who have the link, never as real security.
-PIN = "0821"
-PIN_SALT = "farmkogls.console.gate.v1"
+# The PIN comes from pin.txt, which is never committed — see pinutil.py.
+# It ships as a salted hash, but four digits is 10,000 guesses, so treat it as
+# a light lock between people who have the link, never as real security.
 
 JS_ORDER = [
     "src/zip.js", "src/xlsx-read.js", "src/xlsx-write.js", "src/xlsx-edit.js",
@@ -59,16 +59,17 @@ def main():
     )
     shell = app_shell()
     gate_css = read("hosted/gate.css")
-    gate_html = read("hosted/gate.html")
+    # no docs.html next to an Artifact — drop the placeholder rather than
+    # shipping a link that would 404
+    gate_html = read("hosted/gate.html").replace("__DOCS_LINK__", "")
 
-    pin_hash = hashlib.sha256((PIN_SALT + ":" + PIN).encode("utf-8")).hexdigest()
+    pin = load_pin()
+    pin_hash = hashlib.sha256((PIN_SALT + ":" + pin).encode("utf-8")).hexdigest()
     gate_js = read("hosted/gate.js")
     if "__PIN_HASH__" not in gate_js or "__PIN_SALT__" not in gate_js:
         raise SystemExit("hosted/gate.js: PIN placeholders missing")
     gate_js = gate_js.replace("__PIN_HASH__", pin_hash).replace("__PIN_SALT__", PIN_SALT)
     gate_js = gate_js.replace("</script", "<\\/script")
-    if PIN in gate_js:
-        raise SystemExit("the PIN leaked into the built page in plain text")
 
     page = f"""<title>Farmkogls Booking Console</title>
 
@@ -96,6 +97,8 @@ def main():
 {gate_js}
 </script>
 """
+
+    assert_absent(pin, page, OUT)
 
     with io.open(OUT, "w", encoding="utf-8") as fh:
         fh.write(page)

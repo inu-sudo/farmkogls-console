@@ -10,14 +10,18 @@ import hashlib
 import io
 import os
 import re
-import shutil
 import sys
+
+from pinutil import PIN_SALT, assert_absent, load_pin
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.join(ROOT, "site")
 
-PIN = "0821"
-PIN_SALT = "farmkogls.console.gate.v1"
+DOCS_LINK = (
+    '<p class="gate-docs">'
+    '<a href="docs.html">사용설명서 &middot; 설계 지침서 &middot; 배포 안내 &rarr;</a>'
+    '</p>'
+)
 
 JS_ORDER = [
     "src/zip.js", "src/xlsx-read.js", "src/xlsx-write.js", "src/xlsx-edit.js",
@@ -52,14 +56,13 @@ def main():
     )
     shell = app_shell()
     gate_css = read("hosted/gate.css")
-    gate_html = read("hosted/gate.html")
+    gate_html = read("hosted/gate.html").replace("__DOCS_LINK__", DOCS_LINK)
 
-    pin_hash = hashlib.sha256((PIN_SALT + ":" + PIN).encode("utf-8")).hexdigest()
+    pin = load_pin()
+    pin_hash = hashlib.sha256((PIN_SALT + ":" + pin).encode("utf-8")).hexdigest()
     gate_js = read("hosted/gate.js")
     gate_js = gate_js.replace("__PIN_HASH__", pin_hash).replace("__PIN_SALT__", PIN_SALT)
     gate_js = gate_js.replace("</script", "<\\/script")
-    if PIN in gate_js:
-        raise SystemExit("the PIN leaked into the built page in plain text")
 
     page = f"""<!doctype html>
 <html lang="ko">
@@ -99,9 +102,11 @@ def main():
 </html>
 """
 
-    if os.path.isdir(SITE):
-        shutil.rmtree(SITE)
-    os.makedirs(SITE)
+    assert_absent(pin, page, "site/index.html")
+
+    # do not wipe the directory: build_docs.py writes docs.html alongside this
+    if not os.path.isdir(SITE):
+        os.makedirs(SITE)
     with io.open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as fh:
         fh.write(page)
     # GitHub Pages otherwise runs Jekyll and drops files beginning with "_"

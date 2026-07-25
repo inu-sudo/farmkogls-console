@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Farmkogls Booking Console - 문서</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#f7f6f3; --panel:#fffefb; --ink:#1c1a17; --dim:#6a655c; --line:#e2ddd3;
+  --accent:#0f5c4a; --accent-soft:#e6f0ec; --code-bg:#efece5; --mark:#b45309;
+  --sans:"Malgun Gothic","맑은 고딕",-apple-system,"Segoe UI",system-ui,sans-serif;
+  --mono:"Cascadia Mono",Consolas,"D2Coding",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#14161a;--panel:#1b1e24;--ink:#e8e6e1;--dim:#9a958c;--line:#2c3037;
+        --accent:#5fd0ac;--accent-soft:#17302a;--code-bg:#22262e;--mark:#f0b429}
+}
+:root[data-theme=dark]{--bg:#14161a;--panel:#1b1e24;--ink:#e8e6e1;--dim:#9a958c;
+  --line:#2c3037;--accent:#5fd0ac;--accent-soft:#17302a;--code-bg:#22262e;--mark:#f0b429}
+:root[data-theme=light]{--bg:#f7f6f3;--panel:#fffefb;--ink:#1c1a17;--dim:#6a655c;
+  --line:#e2ddd3;--accent:#0f5c4a;--accent-soft:#e6f0ec;--code-bg:#efece5;--mark:#b45309}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+.wrap{display:grid;grid-template-columns:270px minmax(0,1fr);gap:0;
+  max-width:1240px;margin:0 auto;min-height:100vh}
+#side{border-right:1px solid var(--line);background:var(--panel);
+  padding:22px 18px 40px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:block;font-weight:700;font-size:15px;letter-spacing:.02em;
+  text-decoration:none;color:var(--ink);margin-bottom:2px}
+.brand small{display:block;font-weight:400;color:var(--dim);font-size:11.5px;
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.addr{margin:14px 0 18px;padding:11px 12px;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg)}
+.addr b{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--dim);
+  text-transform:uppercase;font-weight:600;margin-bottom:5px}
+.addr a{font-family:var(--mono);font-size:11.5px;word-break:break-all;line-height:1.5}
+.addr p{margin:7px 0 0;font-size:11.5px;color:var(--dim);line-height:1.5}
+#side nav{display:flex;flex-direction:column;gap:2px}
+#side .doc{display:block;padding:8px 11px;border-radius:8px;text-decoration:none;
+  color:var(--ink);font-weight:600;font-size:13.5px;border:1px solid transparent}
+#side .doc span{display:block;font-weight:400;font-size:11.5px;color:var(--dim)}
+#side .doc:hover{background:var(--accent-soft)}
+#side .doc[aria-current=true]{background:var(--accent-soft);border-color:var(--accent);
+  color:var(--accent)}
+#side .toc{display:none;margin:2px 0 8px;padding-left:12px;
+  border-left:2px solid var(--line);flex-direction:column;gap:1px}
+#side .toc.on{display:flex}
+#side .toc a{padding:4px 9px;border-radius:6px;text-decoration:none;color:var(--dim);
+  font-size:12.5px;line-height:1.45}
+#side .toc a:hover{background:var(--accent-soft);color:var(--accent)}
+#main{padding:34px 44px 100px;min-width:0}
+.doc-body{display:none;max-width:78ch}
+.doc-body.on{display:block}
+.doc-body h1{font-size:26px;line-height:1.35;margin:0 0 22px;letter-spacing:-.01em;
+  text-wrap:balance}
+.doc-body h2{font-size:19px;margin:44px 0 14px;padding-top:18px;
+  border-top:1px solid var(--line);text-wrap:balance}
+.doc-body h3{font-size:16px;margin:30px 0 10px;color:var(--accent);text-wrap:balance}
+.doc-body h4{font-size:14.5px;margin:22px 0 8px}
+.doc-body p{margin:0 0 14px}
+.doc-body ul,.doc-body ol{margin:0 0 14px;padding-left:22px}
+.doc-body li{margin:4px 0}
+.doc-body hr{border:0;border-top:1px solid var(--line);margin:34px 0}
+.doc-body code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);
+  padding:1.5px 5px;border-radius:4px;word-break:break-word}
+.doc-body pre{background:var(--code-bg);border:1px solid var(--line);border-radius:9px;
+  padding:14px 16px;overflow-x:auto;margin:0 0 16px;line-height:1.55}
+.doc-body pre code{background:none;padding:0;font-size:12.5px;white-space:pre}
+.doc-body blockquote{margin:0 0 16px;padding:12px 16px;border-left:3px solid var(--accent);
+  background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc-body blockquote> :last-child{margin-bottom:0}
+.tw{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:9px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);
+  vertical-align:top;line-height:1.6}
+th{background:var(--code-bg);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{font-size:.86em}
+.doc-body li>ul{margin:4px 0 0;padding-left:20px}
+@media (max-width:860px){
+  .wrap{grid-template-columns:1fr}
+  #side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);
+    padding:16px 18px 20px}
+  #side .toc{display:none!important}
+  #main{padding:24px 18px 80px}
+  .doc-body h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside id="side">
+  <a class="brand" href="./"><small>Farmkogls &middot; 팜코지엘에스</small>Booking Console 문서</a>
+  <div class="addr">
+    <b>사이트 주소</b>
+    <a href="https://inu-sudo.github.io/farmkogls-console/">https://inu-sudo.github.io/farmkogls-console/</a>
+    <p>PIN 4자리를 입력하면 도구가 열립니다.<br>번호는 담당자에게 확인하세요.</p>
+  </div>
+  <nav><a class="doc" href="#d0">문서 안내<span>어느 문서를 언제 보나</span></a><div class="toc"></div><a class="doc" href="#d1">1. 이해한 내용<span>업무 모델과 계산 규칙</span></a><div class="toc"><a href="#d1-h2">1. 회사가 하는 일</a><a href="#d1-h3">2. 4개 서비스(항로 루프)와 선사 파트너</a><a href="#d1-h4">3. 오가는 문서 7종과 업무 흐름</a><a href="#d1-h5">4. 반드시 지켜야 하는 계산 규칙</a><a href="#d1-h6">5. 지금 방식의 구조적 문제</a><a href="#d1-h7">6. 그래서 도구가 하는 일</a><a href="#d1-h8">7. 아직 확인이 필요한 부분 (제 추정)</a></div><a class="doc" href="#d2">2. 사용 매뉴얼<span>부킹 담당자용</span></a><div class="toc"><a href="#d2-h2">0. 시작하기 (1분)</a><a href="#d2-h6">1. 화면 구성</a><a href="#d2-h7">2. 주간 업무 루틴 ⭐ — 「파일 갱신」이 본체입니다</a><a href="#d2-h12">2-1. 분석 화면 (부가 기능)</a><a href="#d2-h13">3. 어떤 파일을 넣을 수 있나</a><a href="#d2-h14">4. 탭별 사용법</a><a href="#d2-h21">5. 필터 사용법</a><a href="#d2-h22">6. 내보낸 엑셀 (14개 시트)</a><a href="#d2-h23">7. 백업과 기기 이동</a><a href="#d2-h25">8. 이런 상황이면 (FAQ)</a><a href="#d2-h26">9. 알아둘 한계</a></div><a class="doc" href="#d3">3. 설계 지침서<span>바이브 코딩 + 설명 대본</span></a><div class="toc"><a href="#d3-h2">1. 한 문장으로</a><a href="#d3-h3">2. 비유로 보는 전체 구조</a><a href="#d3-h5">3. 왜 이렇게 만들었나 — 핵심 결정들</a><a href="#d3-h13">4. 가장 중요한 아이디어 3개</a><a href="#d3-h17">5. 실패에서 배운 것 (비개발자에게 설명하기 좋은 사례)</a><a href="#d3-h25">6. AI에게 수정을 맡길 때 ⭐</a><a href="#d3-h33">7. 비개발자에게 설명하는 대본</a><a href="#d3-h38">8. 최소 용어집</a></div><a class="doc" href="#d4">4. 기술 참고<span>AI에게 붙여줄 문서</span></a><div class="toc"><a href="#d4-h2">1. 설계 전제 3가지</a><a href="#d4-h6">2. 구조와 데이터 흐름</a><a href="#d4-h7">3. 정규 데이터 모델</a><a href="#d4-h8">4. 핵심 알고리즘 3개</a><a href="#d4-h12">5. 실제로 만난 버그와 교훈 ⭐</a><a href="#d4-h26">6. 개발 환경과 작업 절차</a><a href="#d4-h30">7. 확장 방법</a><a href="#d4-h35">8. 손대기 전에 알아둘 함정 요약</a><a href="#d4-h37">9. 성능 기준값</a></div><a class="doc" href="#d5">배포하기<span>홈페이지를 올리고 고치는 법</span></a><div class="toc"><a href="#d5-h2">제일 빠른 방법 — 스크립트 한 번 실행</a><a href="#d5-h3">0. 이 폴더로 이동</a><a href="#d5-h4">1. GitHub 로그인 (한 번만)</a><a href="#d5-h5">2. 저장소 만들고 올리기</a><a href="#d5-h6">3. 사이트 켜기</a><a href="#d5-h7">앞으로 내용을 고칠 때</a><a href="#d5-h8">PIN 바꾸기</a><a href="#d5-h9">비공개 저장소로 두고 싶다면</a><a href="#d5-h10">PIN보다 강한 잠금이 필요하면</a></div></nav>
+</aside>
+<main id="main"><article class="doc-body" id="d0"><h1 id="d0-h1">문서 안내</h1>
+<div class="tw"><table><thead><tr><th>순서</th><th>문서</th><th>누가 읽나</th><th>무엇을 얻나</th></tr></thead><tbody><tr><td>1</td><td><a href="#d1">01_이해한_내용.md</a></td><td>전원</td><td>팜코지엘에스 업무 모델, 문서 7종의 흐름, 계산 규칙, 현재 방식의 문제 6가지</td></tr><tr><td>2</td><td><a href="#d2">02_사용_매뉴얼.md</a></td><td>부킹 담당자</td><td><strong>「파일 갱신」 주간 루틴</strong>, 탭별 사용법, FAQ, 한계</td></tr><tr><td>3</td><td><a href="#d3">03_설계_지침서.md</a></td><td><strong>바이브 코딩하는 나 + 설명 들을 사람</strong></td><td>비유로 보는 구조, 설계 결정 7개, 핵심 아이디어 3개, <strong>AI에게 수정 맡기는 법</strong>, 고친 걸 홈페이지에 올리는 법, 비개발자 설명 대본</td></tr><tr><td>부록</td><td><a href="#d4">04_기술_참고.md</a></td><td>코드를 직접 볼 때 / <strong>AI에게 붙여줄 때</strong></td><td>모듈 구조, 알고리즘, <strong>실제 버그 13건과 교훈</strong>, 함정 17개, 행 삽입 체크리스트</td></tr><tr><td>배포</td><td><code>farmkogls-site/배포하기.md</code></td><td>홈페이지를 처음 올릴 때</td><td>명령 한 줄로 배포, 비공개로 두는 법, PIN보다 강한 잠금</td></tr></tbody></table></div>
+<p><strong>1번 문서를 먼저 확인해 주세요.</strong> 제가 파일에서 추론한 업무 모델이므로, 틀린 전제가 있으면 도구도 함께 틀립니다. 특히 §7 &quot;확인이 필요한 부분&quot;의 5개 항목을 봐주시면 좋겠습니다.</p>
+<p><strong>3번이 사람용 본문입니다.</strong> 프로그램 코드는 나오지 않고, 그대로 읽어서 팀장·동료· IT 담당자에게 설명할 수 있게 썼습니다. §5(실패에서 배운 것)와 §6(AI에게 수정 맡길 때)가실제로 가장 도움이 되는 부분입니다.</p>
+<p><strong>4번은 AI에게 던져줄 문서입니다.</strong> 수정을 맡길 때 &quot;docs/04를 먼저 읽어&quot;라고붙이면 제가 밟은 함정을 다시 밟지 않습니다.</p>
+<p>영문 기술 요약은 상위 폴더의 <a href="https://github.com/inu-sudo/farmkogls-console" target="_blank" rel="noopener">README.md</a>에 있습니다.</p></article><article class="doc-body" id="d1"><h1 id="d1-h1">1단계 — 제가 이해한 팜코지엘에스의 업무와 데이터</h1>
+<p>이 문서는 제공해주신 13개 엑셀 파일과 알려주신 내용(회사명, 부킹 사이트, &quot;일부 항로는 사이트가 아니라 이메일 엑셀로 처리&quot;)을 근거로 재구성한업무 모델입니다. <strong>이 이해가 도구 설계의 전제</strong>이므로, 틀린 부분이 있으면이 문서를 먼저 고쳐야 합니다.</p>
+<hr>
+<h2 id="d1-h2">1. 회사가 하는 일</h2>
+<p>팜코지엘에스(Farmkogls, 데이터상 <code>FARMKO</code> / <code>팜코</code>)는 <strong>선박을 소유하지 않는 NVOCC / 선복 재판매업자</strong>입니다.</p>
+<pre><code>  피더 선사              팜코지엘에스                고객
+  (GFS/BTL/X-Press)  ──▶  선복 블록 매입      ──▶  한국 포워더
+   실제 배 운항            (DF 계약)                해외 에이전트
+                          ↓
+                    남은 선복 = 손실
+                    초과 선복 = 추가비용</code></pre>
+<p>핵심 구조는 <strong>DF(Dead Freight, 부동운임) 계약</strong>입니다.</p>
+<ul><li>선사와 기간(보통 1~6개월)을 정해 <strong>약정 물량(TEU)과 약정 중량(톤)</strong>을 삽니다.</li><li>대금은 <code>TEU당 단가 × 약정 물량</code>으로 <strong>고정</strong>됩니다. → 안 채우면 그대로 손실.</li><li>약정을 넘겨 실으면 <strong>Excess Slot Rate</strong>(구간별 별도 단가)가 붙습니다.</li><li>여기에 할증이 더해집니다: DG 150/TEU, RF 150/box, Flexi 100/box, TK 100/box, COD 130/변경.</li></ul>
+<p><strong>따라서 이 회사의 손익은 &quot;약정 대비 실제 적재율&quot;에서 거의 다 결정됩니다.</strong> BSA를 넘겼는지 남겼는지가 곧 돈입니다. 제가 만든 도구가 화면 한가운데에 <code>BSA 대비 이용률</code>을 놓은 이유입니다.</p>
+<p>실제 예 (<code>BTL_CCS(JUL 26')</code> 시트):</p>
+<div class="tw"><table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody><tr><td>단가</td><td>850 / TEU</td></tr><tr><td>약정 물량</td><td>70 TEU</td></tr><tr><td>약정 중량</td><td>910 톤 (상해 720 톤)</td></tr><tr><td>고정 대금</td><td>59,500</td></tr><tr><td>실제 적재</td><td>69 TEU → 실질 단가 862.3 / TEU</td></tr><tr><td>판매 단가</td><td>20' 1,500 / 40' 1,900</td></tr><tr><td>결과</td><td>+12,850</td></tr></tbody></table></div>
+<p>같은 시트의 &quot;#1. Ideal Booking&quot; 시나리오는 <strong>−16,000</strong> 입니다. 즉 <strong>어떤 박스를 싣느냐에 따라 흑자와 적자가 갈립니다.</strong> 40'를 이상적으로 채우면적자, 실제처럼 20'를 섞으면 흑자였습니다.</p>
+<hr>
+<h2 id="d1-h3">2. 4개 서비스(항로 루프)와 선사 파트너</h2>
+<div class="tw"><table><thead><tr><th>SVC</th><th>선복 제공 선사</th><th>기항 순서</th></tr></thead><tbody><tr><td><strong>CSC</strong></td><td>GFS</td><td>부산 → 광양 → 상해 → 클랑(W) → 나바셰바 → 문드라 → 카라치 → 클랑(W) → 부산</td></tr><tr><td><strong>NWX</strong></td><td>X-Press</td><td>청도 → 부산 → 클랑(N) → 나바셰바 → 피파바브 → 문드라 → 카라치 → 청도 → 부산</td></tr><tr><td><strong>CCS</strong></td><td>BTL</td><td>청도 → 부산 → 상해 → 클랑(W) → 클랑(N) → 첸나이 → 카투팔리 → 클랑(N) → 청도 → 부산</td></tr><tr><td><strong>SKS</strong></td><td>BTL</td><td>클랑(W) → 클랑(N) → 콜카타 → 클랑(W) → 클랑(N)</td></tr></tbody></table></div>
+<p>투입 선박(파일에서 확인된 것):</p>
+<ul><li><strong>CSC</strong> — ZHONG GU 시리즈(ZI AN / LAN ZHOU / HANG ZHOU / XI AN), MELBOURNE BRIDGE, GFS GALAXY, BEIJING BRIDGE, GRACE BRIDGE</li><li><strong>NWX</strong> — X-PRESS CASSIOPEIA / PHOENIX / CARINA</li><li><strong>CCS</strong> — INTERASIA HORIZON / INSPIRATION, WAN HAI 501·510·521·522·372, TIGER CHENNAI, KMTC JEBEL ALI</li><li><strong>SKS</strong> — MTT SAMALAJU / LIMBANG / LABUAN / SEMPORNA, YANG GUANG, IMKE SCHEPERS, XIN HONG SHENG 37, HAI FENG, HONG JIA 17, GLORY RIGHT</li></ul>
+<p><strong>주력 항로는 한국·중국 ↔ 인도 + 파키스탄</strong>입니다. 실적 기준 상위 구간:</p>
+<div class="tw"><table><thead><tr><th>구간</th><th>TEU</th></tr></thead><tbody><tr><td>부산 → 첸나이</td><td>1,225</td></tr><tr><td>청도 → 부산</td><td>467</td></tr><tr><td>나바셰바 → 부산</td><td>385</td></tr><tr><td>부산 → 나바셰바</td><td>369</td></tr><tr><td>카투팔리 → 청도</td><td>354</td></tr></tbody></table></div>
+<p>인도발 부산향(나바셰바→부산 385 TEU)은 중량이 740톤뿐입니다. TEU당 1.9톤 = <strong>거의 전부 공컨테이너 회수(Empty Repo)</strong>입니다. 전체 4,920 TEU 중 1,473 TEU(30%)가 공컨 회수입니다. 이건 매출이 아니라장비 재배치 비용이므로, 매출 분석에서 반드시 분리해야 합니다.</p>
+<hr>
+<h2 id="d1-h4">3. 오가는 문서 7종과 업무 흐름</h2>
+<p>이게 이 회사 업무의 실체입니다. 누가 → 누구에게 → 무엇을 보내는지:</p>
+<pre><code> [해외 에이전트: MSA 등]
+        │  ① 주간 부킹 예보 (학습.xlsx 형태)
+        │     서비스별 4개 시트 · B/L 단위
+        ▼
+ [팜코 영업/운영]  ──②──▶ ③ 항차별 BK SHEET (마감)
+        │                    선적 확정 · 판매운임 · 손익
+   ② 통합 등록부                    │
+   (FES BK FCST)                    ▼
+   전 서비스 · 2구간 라우팅     ④ ROB 적재계획
+        │                        구간별 잔여 선복
+        ▼
+   ⑤ 스케줄 / ⑥ BSA / ⑦ DF 계약  ← 선사와의 약정 (상수 역할)</code></pre>
+<div class="tw"><table><thead><tr><th>#</th><th>문서</th><th>성격</th><th>담고 있는 것</th></tr></thead><tbody><tr><td>①</td><td><code>FES &lt;SVC&gt; BK FCST</code> (학습.xlsx)</td><td>해외 에이전트 → 팜코, <strong>주간 유입</strong></td><td>B/L, 선명/항차, ETD, POL/POD/F.POD, 컨테이너 수량, VGM</td></tr><tr><td>②</td><td><code>FES BK FCST</code> (FES AGENCY)</td><td>팜코 <strong>통합 등록부</strong></td><td>①에 2구간(환적) 라우팅·고객·요율 추가. 하단에 <code>** CANCEL LIST</code> 별도 구역</td></tr><tr><td>③</td><td><code>BK SHEET (마감)</code></td><td><strong>항차별 운영 확정본</strong></td><td>부킹일/취소일, 선적인(한국 포워더), DG·OOG 특수화물, 픽업 터미널, 영업사원, <strong>판매운임과 손익</strong>, 헤더에 BSA·DF 단가·서류/화물 마감일. 하단에 <code>Cancel 정리</code></td></tr><tr><td>④</td><td><code>ROB</code> (항차별)</td><td><strong>적재 통제</strong></td><td>기항지마다 이전 잔량 + 적재 − 양하 = 선상 잔량, NDG/DG/OOG 구분, BSA 대비 잔여</td></tr><tr><td>⑤</td><td><code>Schedule</code></td><td>상수</td><td>서비스별 기항 순서와 항구별 ETD, WEEKNUM</td></tr><tr><td>⑥</td><td><code>BSA</code></td><td>상수</td><td>항차별 우리 배정량(TEU·톤), Northbound/Southbound, 선박 대체(<code>A =&gt; B</code>)</td></tr><tr><td>⑦</td><td><code>DF 계산기</code></td><td>상수</td><td>선사·서비스·기간별 단가/약정량/할증/구간 초과단가</td></tr></tbody></table></div>
+<p>여기에 운임 파일들(<code>FES India 운임</code>, <code>NVOCC 월간 운임</code>, <code>파트너 월간운임</code>, <code>IRAN &amp; RED SEA</code>, <code>MARKET RATE</code>, <code>OOG 운임 포맷</code>)이 <strong>반월 단위(1H/2H)</strong>로따로 관리됩니다. <code>FES India 운임</code>은 24년 6월부터 26년 7월까지 51개 시트가쌓여 있습니다. FEEDER CARRIER / PRINCIPAL TERM(FIFO) / SELLING TERM(CY/CY) / 환율 / DG 할증(원가·판매 분리)이 한 시트에 함께 들어 있습니다.</p>
+<hr>
+<h2 id="d1-h5">4. 반드시 지켜야 하는 계산 규칙</h2>
+<p>파일의 실제 수식에서 그대로 뽑았습니다. 도구도 동일하게 구현했습니다.</p>
+<p><strong>TEU 환산</strong> — 20피트류 1, 40피트류 2, Void 1</p>
+<pre><code>TEU = 20'DV + 20'MT + 20'FR + Void + (40'HC + 40'MT + 40'FR) × 2</code></pre>
+<p><code>Void</code>가 1 TEU로 계산되는 게 중요합니다. OOG(초과규격) 화물이 옆 슬롯을못 쓰게 만드는 만큼을 비용으로 잡는 것입니다.</p>
+<p><strong>주차(WK)</strong> — 엑셀 <code>WEEKNUM(ETD)</code> 기본값(일요일 시작, 1월 1일이 1주차). ISO 주차와 다릅니다. 파일과 숫자를 맞추려면 이 방식이어야 합니다.</p>
+<p><strong>Tare(공컨 자중)</strong> — 20FT 2.3톤, 40FT 3.7톤</p>
+<p><strong>화물 등급</strong> — FR이나 Void가 있으면 <code>OOG</code>, 특수/비고에 위험물 표기가 있으면 <code>DG</code>, 나머지는 <code>NDG</code></p>
+<p><strong>ROB(선상 잔량)</strong> — 이게 가장 중요한 개념입니다.</p>
+<pre><code>각 기항지에서:  잔량 = 이전 잔량 + 이번 적재 − 이번 양하
+잔여 선복    =  BSA − 최대 선상 잔량</code></pre>
+<p><strong>&quot;부킹 합계&quot;가 아니라 &quot;최대 선상 잔량&quot;이 선복 소요량</strong>입니다. 부산에서 실어 첸나이에서 내린 박스는 그 이후 구간의 선복을 쓰지 않습니다. 실제 예 — <code>TIGER CHENNAI 2605W</code>는 부킹 합계 105 TEU지만최대 선상 잔량은 81 TEU입니다. 귀사 BK SHEET의 Grand Total도 81입니다. BSA가 50이므로 초과는 31 TEU(합계 기준 55가 아님)입니다. <strong>이 차이만큼 초과 선복 비용을 과다 계산할 수 있습니다.</strong></p>
+<hr>
+<h2 id="d1-h6">5. 지금 방식의 구조적 문제</h2>
+<p>부킹 사이트(farmkogls.plism.com)가 있는데도 엑셀을 주고받는 이유가 &quot;일부 항로만 사이트에서 처리된다&quot;는 것이었습니다. 그래서 생기는 문제:</p>
+<ol><li><strong>같은 부킹이 3곳에 존재</strong> — 에이전트 예보, 통합 등록부, 항차 BK SHEET. 서로 값이 어긋나도 알 방법이 없습니다. 실제로 지금 파일에 <strong>16건의 불일치</strong>가 있습니다.</li><li><strong>수식이 조용히 깨져 있음</strong> — <code>FES BK FCST</code>의 VGM 계산 중 16·21·23·24·30·31·37·38·39행이 빈 셀 <code>$V$4/$V$5</code>를 참조해 <strong>중량이 0</strong>으로나옵니다(정상인 26·29행은 <code>$Z$4/$Z$5</code>). 중량 초과 판단이 무력화됩니다.</li><li><strong>표기 불일치</strong> — 같은 항구가 <code>MYPKG(N)</code> / <code>MYPKN</code> / <code>NPKL</code>, 같은 회사가 <code>FARMKO</code> / <code>팜코</code>, 오타 <code>CHSHA</code>(→CNSHA), <code>X-PRESS PHOEINIX</code>, <code>MELBOURNE BRDIGE</code>. → 집계하면 각각 다른 항목으로 잡힙니다.</li><li><strong>헤더 오타가 실적을 왜곡</strong> — BK SHEET 5장의 <code>SVC Name</code>이 잘못 적혀 <strong>80건의 부킹이 엉뚱한 서비스로 집계</strong>되고 있었습니다. 예: <code>XCA26022W(0615)마감</code>은 CSC로 적혀 있지만 X-PRESS CARINA는 NWX 선박입니다.</li><li><strong>항차 번호가 매년 재사용됨</strong> — <code>WAN HAI 522 W038</code>이 25년과 26년에 모두존재합니다. 연도 구분 없이 합치면 과거 BSA가 현재 항차를 덮어씁니다.</li><li><strong>초과 적재가 집계되지 않음</strong> — 지금 데이터에서 <strong>27개 항차가 BSA 초과, 합계 476 TEU</strong>입니다. 의도된 초과일 수도 있지만, 한눈에 보이지 않으면협상·정산 근거가 없습니다.</li></ol>
+<hr>
+<h2 id="d1-h7">6. 그래서 도구가 하는 일</h2>
+<p>위 문제를 1:1로 겨냥했습니다.</p>
+<div class="tw"><table><thead><tr><th>문제</th><th>도구의 대응</th></tr></thead><tbody><tr><td>같은 부킹 3중 존재</td><td>B/L+항차+POD 키로 병합, 어긋난 값은 <strong>양쪽 출처를 명시해 보고</strong></td></tr><tr><td>표기 불일치</td><td>항구·선박·거래처 표준화 사전</td></tr><tr><td>헤더 오타</td><td>그 항차의 스케줄이 이기고, 정정 내역을 보고</td></tr><tr><td>항차번호 재사용</td><td>BSA 출처에 우선순위(항차 BK SHEET &gt; 스케줄 &gt; 과거 ROB)</td></tr><tr><td>초과 적재 미집계</td><td>ROB를 재계산해 <strong>최대 선상 잔량</strong> 기준으로 BSA 대비 표시</td></tr><tr><td>수식 파손</td><td>수량에서 TEU·중량을 직접 재계산, 원본과 다르면 경고</td></tr><tr><td>주간 반복 작업</td><td>파일 드롭 → 누적 등록부 → 엑셀 1클릭 출력</td></tr></tbody></table></div>
+<p>검증 결과(제공된 6개 파일 기준): 부킹 1,182건 · 4,920 TEU · 항차 166개. 엑셀에서 열어 <code>MASTER</code> / <code>VOYAGE SUMMARY</code> / <code>WEEK SUMMARY</code> 합계가모두 4,920으로 일치합니다.</p>
+<hr>
+<h2 id="d1-h8">7. 아직 확인이 필요한 부분 (제 추정)</h2>
+<p>정직하게 적어둡니다. 이 항목들은 제가 데이터에서 추론한 것이라 확인이 필요합니다.</p>
+<ol><li><strong><code>Void</code> 1 TEU 처리</strong> — 파일 수식을 따랐지만, 실제 선사 정산에서 Void를 어떻게 청구하는지는 확인이 필요합니다.</li><li><strong>BK SHEET의 <code>Shipper</code>와 통합 등록부의 <code>BK PARTY</code></strong> — 전자는 한국 포워더, 후자는 해외 에이전트로 성격이 다른데, 도구는 둘을 &quot;부킹 주체&quot; 하나로묶었습니다. 분리해야 하면 알려주세요.</li><li><strong>손익</strong> — 항차 BK SHEET에 DF 원가가 적힌 항차만 마진을 계산했습니다. 초과 선복 단가와 할증은 참고용으로만 읽어두고 마진에 반영하지 않았습니다. 전체 손익을 원하시면 DF 계약과 항차를 기간으로 연결해야 합니다.</li><li><strong><code>JIRA BHUM</code> / <code>HEMMA BHUM</code> / <code>MUMBAI BRIDGE</code></strong> — 스케줄에 없어서비스를 데이터에서 학습했습니다. RCL 관련 선박으로 보이는데어느 루프인지 확인이 필요합니다.</li><li><strong>운임 파일 6종</strong> — 구조는 파악했지만 도구에 아직 연결하지 않았습니다. 판매운임 자동 적용까지 원하시면 다음 단계입니다.</li></ol></article><article class="doc-body" id="d2"><h1 id="d2-h1">2단계 — 사용 매뉴얼 (처음 쓰는 사람용)</h1>
+<p>대상: 팜코지엘에스 부킹 업무 담당자. 엑셀만 쓸 수 있으면 됩니다. 프로그램 설치, 로그인, 인터넷 연결 모두 필요 없습니다.</p>
+<hr>
+<h2 id="d2-h2">0. 시작하기 (1분)</h2>
+<p>여는 방법이 두 가지입니다. <strong>둘 다 같은 도구</strong>이고, 하는 일도 똑같습니다.</p>
+<h3 id="d2-h3">방법 A — 홈페이지 (다른 사람에게 알려줄 때)</h3>
+<ol><li>브라우저에서 주소를 엽니다. ``<code> https://inu-sudo.github.io/farmkogls-console/ </code>``</li><li><strong>PIN 4자리</strong>를 누릅니다. (번호는 담당자에게 확인하세요 — 이 문서에는 적지 않습니다)</li><li>끝입니다.</li></ol>
+<p>설치할 것도, 파일을 받을 것도 없습니다. 회사 PC가 꺼져 있어도, 휴대폰에서도 열립니다.</p>
+<h3 id="d2-h4">방법 B — 파일 (내 PC에서 늘 쓸 때)</h3>
+<ol><li>바탕화면 <code>claude</code> 폴더의 <strong><code>Farmkogls_Booking_Console.html</code></strong>을 더블클릭합니다.</li><li>브라우저가 열리면 끝입니다.</li></ol>
+<p>인터넷이 끊겨도 되고, PIN도 없습니다. 파일 하나(239KB)라서 <strong>메일에 첨부해서 보내면 그게 곧 배포</strong>입니다.</p>
+<h3 id="d2-h5">어느 쪽을 쓰나</h3>
+<div class="tw"><table><thead><tr><th></th><th>홈페이지</th><th>파일</th></tr></thead><tbody><tr><td>알려주기</td><td>주소 + PIN만</td><td>파일을 보내야 함</td></tr><tr><td>인터넷</td><td>처음 열 때만 필요</td><td>전혀 불필요</td></tr><tr><td>갱신</td><td>항상 최신</td><td>새 파일을 다시 받아야 함</td></tr><tr><td>엑셀 내려받기</td><td>됨</td><td>됨</td></tr></tbody></table></div>
+<blockquote><p><strong>참고 — Artifact 판은 예외입니다.</strong> claude.ai 안에서 열리는 판은보안 제약 때문에 <strong>엑셀 파일을 내려받을 수 없습니다.</strong> 화면으로 보는 건다 되지만, 실제 <code>.xlsx</code>가 필요하면 위 홈페이지나 파일을 쓰세요. (Artifact 판 화면에도 도구 파일을 내려받는 버튼이 있습니다.)</p></blockquote>
+<p><strong>필요 조건</strong></p>
+<ul><li>Microsoft Edge, Chrome, 또는 Firefox 113 이상. (Internet Explorer 불가)</li><li>브라우저가 맞지 않으면 화면에 그렇게 안내가 뜹니다. 조용히 실패하지 않습니다.</li></ul>
+<p><strong>보안 안심 사항</strong></p>
+<ul><li>드롭한 엑셀은 <strong>내 브라우저 안에서만</strong> 열립니다. 서버로 올라가지 않습니다. 홈페이지로 열어도 마찬가지입니다 — <strong>홈페이지는 도구를 배달할 뿐</strong>, 파일 내용은 어디로도 전송되지 않습니다.</li><li>파일(방법 B)은 인터넷을 끊어도 똑같이 동작합니다.</li></ul>
+<blockquote><p><strong>PIN에 대해 정직하게</strong> — 이 4자리는 <strong>문 앞의 자물쇠가 아니라 문고리</strong>입니다. 주소를 아는 사람이 지나가다 들어오는 걸 막는 정도이고, 마음먹고 뜯어보면 뚫립니다. <strong>진짜 잠금이 필요하면 알려주세요</strong> — 이메일 인증(Cloudflare Access, 무료·50명)을 앞에 걸 수 있습니다.</p>
+<p>지금 홈페이지에는 <strong>부킹 자료가 들어 있지 않습니다.</strong> 빈 도구만 올라가 있고, 자료는 각자 파일을 넣는 순간부터 그 사람 브라우저에만 쌓입니다.</p></blockquote>
+<hr>
+<h2 id="d2-h6">1. 화면 구성</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│ Farmkogls Booking Console   [부킹수][TEU][항차][취소][갱신]  │ ← 상단 현황
+├─────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  이번 주 엑셀 파일을 여기에 끌어다 놓으세요            │  │ ← 드롭 영역
+│  │  [파일 선택…]                                          │  │
+│  └───────────────────────────────────────────────────────┘  │
+│ ▸파일 갱신│Overview│Voyages vs BSA│ROB│Bookings│Changes│Ref │ ← 탭
+├─────────────────────────────────────────────────────────────┤
+│  [서비스][상태][주차][POL][F.POD][거래처][검색]  [초기화]    │ ← 필터
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│                    선택한 탭의 내용                          │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│ [⬇ Export Excel] [Save project file] [Clear register]       │ ← 하단 버튼
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<p><strong><code>파일 갱신</code> 탭이 기본으로 열립니다.</strong> 이게 주 업무이고, 나머지 탭은 분석용입니다. 탭 옆 <code>1/2</code>는 갱신에 필요한 두 파일 중 몇 개가 준비됐는지 뜻합니다.</p>
+<p><strong>상단 현황</strong>은 항상 현재 등록부 전체를 보여줍니다. <code>갱신</code>은 마지막으로 파일을 넣은 시각입니다.</p>
+<p>오른쪽 위 <strong><code>◐ Auto</code></strong> 버튼으로 밝은 화면 / 어두운 화면을 바꿉니다.</p>
+<hr>
+<h2 id="d2-h7">2. 주간 업무 루틴 ⭐ — 「파일 갱신」이 본체입니다</h2>
+<p><strong>목적: 에이전트가 보낸 예보를 통합 등록부에 반영해서, 갱신된 등록부를 돌려받는 것.</strong></p>
+<div class="tw"><table><thead><tr><th>순서</th><th>할 일</th></tr></thead><tbody><tr><td>1</td><td>파일을 연다 (<code>파일 갱신</code> 탭이 처음부터 열려 있습니다)</td></tr><tr><td>2</td><td><strong><code>학습.xlsx</code>와 <code>FES AGENCY BOOKING FORECAST 학습.xlsx</code>를 함께</strong> 끌어다 놓는다</td></tr><tr><td>3</td><td>어느 쪽이 입력이고 대상인지 자동 판별됩니다 — 두 칸이 초록색이 되는지 확인</td></tr><tr><td>4</td><td><strong><code>③ 등록부에 반영하기</code></strong> 클릭</td></tr><tr><td>5</td><td>화면에 나온 <strong>변경 내역</strong>을 확인 (무엇이 새로 들어가고 무엇이 바뀌는지)</td></tr><tr><td>6</td><td><strong><code>⬇ 갱신된 파일 내려받기</code></strong> 클릭 → 회신</td></tr></tbody></table></div>
+<p><strong>원본 파일은 건드리지 않습니다.</strong> <code>..._updated_20260725_1432.xlsx</code> 같은 새 사본이 나옵니다.</p>
+<h3 id="d2-h8">무엇이 보존되나</h3>
+<p>대상 파일을 새로 만드는 게 아니라 <strong>필요한 칸만 고칩니다.</strong> 그래서 그대로 남습니다:</p>
+<ul><li>모든 <strong>수식</strong> (<code>=WEEKNUM(...)</code>, TEU 계산식, Lumpsum 계산식)</li><li>셀 서식, 배경색, 테두리, 숫자 서식</li><li>병합 셀, 자동 필터, 조건부 서식</li><li><strong>그림, 메모, 인쇄 설정</strong>, 다른 시트(<code>Schedule</code>)</li></ul>
+<p>새로 추가되는 행은 <strong>바로 위 데이터 행의 서식과 수식을 물려받습니다.</strong> 행이 추가되면 아래쪽 <code>** CANCEL LIST</code> 블록이 자동으로 밀려나고, 그 안의 수식과메모 위치도 함께 조정됩니다.</p>
+<h3 id="d2-h9">실제 예 (제공해주신 파일로 검증한 결과)</h3>
+<pre><code>학습.xlsx  16행  →  FES BK FCST
+  신규 삽입 11건 (375행부터)   기존 갱신 5건   변화 없음 0건
+  → CANCEL LIST 378행 → 389행으로 이동
+  → 활성구역 TEU 합계 2,460 → 2,576 (증가 116 = 신규 11행 합계와 일치)</code></pre>
+<p>갱신된 5건의 내용:</p>
+<div class="tw"><table><thead><tr><th>행</th><th>무엇이 바뀌나</th></tr></thead><tbody><tr><td>327</td><td>B열에 화주명 추가 (예보에는 있고 등록부에는 비어 있던 값)</td></tr><tr><td>352</td><td>B열에 화주명 추가 (위와 같음)</td></tr><tr><td>344 · 373</td><td><strong>ETD <code>2026-07-27</code> → <code>2026-07-31</code></strong> (등록부가 예보보다 뒤처져 있었음)</td></tr><tr><td>344 · 373 · 374</td><td><strong>T/S 항구 오타 <code>MPYKG(N)</code> → <code>MYPKG(N)</code></strong></td></tr></tbody></table></div>
+<h3 id="d2-h10">반드시 직접 채워야 하는 것</h3>
+<p>도구가 채우지 않고 비워두는 칸이 있습니다. <strong>학습.xlsx에 그 정보가 없기 때문입니다.</strong></p>
+<div class="tw"><table><thead><tr><th>비워두는 칸</th><th>이유</th></tr></thead><tbody><tr><td><strong>T/S 행의 <code>I</code>(2nd Leg Vessel) · <code>J</code>(ETD) · <code>N</code>(2nd SVC)</strong></td><td>환적 연결 배는 예보에 없습니다. 담당자가 정하는 정보입니다</td></tr><tr><td><code>Z</code> (VGM 중량)</td><td>학습.xlsx에 비어 있으면 비워둡니다 (추정하지 않음)</td></tr><tr><td><code>AB</code> (Rate/Box)</td><td>위와 같음</td></tr><tr><td><code>C</code> (Customer)</td><td>지금 관행대로 비워둡니다 (화주명은 <code>B</code> Remark에 들어갑니다)</td></tr></tbody></table></div>
+<p>화면 아래 <strong>「T/S 행 — 2nd Leg를 직접 채워야 합니다」</strong> 표에 해당 행이 전부 나옵니다. 그 목록만 보고 엑셀에서 채우면 됩니다.</p>
+<h3 id="d2-h11">같은 파일을 또 넣어도 안전합니다</h3>
+<p>같은 학습.xlsx를 갱신된 파일에 다시 반영해도 <strong>신규 0 · 갱신 0 · 변화없음 16</strong>이 나옵니다. 실수로 두 번 돌려도 행이 중복되지 않습니다.</p>
+<hr>
+<h2 id="d2-h12">2-1. 분석 화면 (부가 기능)</h2>
+<p>파일을 넣으면 갱신 작업과 별개로 분석 화면도 채워집니다. 필요할 때만 보세요.</p>
+<div class="tw"><table><thead><tr><th>순서</th><th>할 일</th><th>어디서</th></tr></thead><tbody><tr><td>1</td><td>받은 엑셀을 한꺼번에 끌어다 놓는다 (BK SHEET, ROB, DF 계산기까지)</td><td>드롭 영역</td></tr><tr><td>2</td><td><strong>Changes</strong> 탭에서 지난주와 무엇이 달라졌는지 확인</td><td>Changes</td></tr><tr><td>3</td><td><strong>Voyages vs BSA</strong> 탭에서 빨간 항차를 확인 (= 초과 선복 비용)</td><td>Voyages</td></tr><tr><td>4</td><td><strong><code>⬇ Export Excel</code></strong> 로 14시트 통합 리포트를 받는다</td><td>하단</td></tr></tbody></table></div>
+<blockquote><p><code>⬇ Export Excel</code>은 <strong>새 통합 리포트</strong>를 만드는 것이고, <code>파일 갱신</code>은 <strong>기존 등록부를 고쳐서</strong> 돌려주는 것입니다. 용도가 다릅니다.</p></blockquote>
+<p>여러 번 같은 파일을 넣어도 <strong>아무 일도 일어나지 않습니다</strong>(<code>동일 1,182건</code>). 잘못 넣었을까 걱정하지 말고 그냥 다시 넣으세요.</p>
+<p>파일을 넣는 <strong>순서는 결과에 영향을 주지 않습니다.</strong> 6개를 어떤 순서로 넣어도같은 결과가 나오도록 만들어 두었습니다.</p>
+<hr>
+<h2 id="d2-h13">3. 어떤 파일을 넣을 수 있나</h2>
+<p>한 번에 몇 개든 섞어서 넣어도 됩니다. 도구가 시트별로 알아서 판별합니다.</p>
+<div class="tw"><table><thead><tr><th>넣을 수 있는 것</th><th>도구가 읽는 내용</th></tr></thead><tbody><tr><td>에이전트 주간 예보 (<code>FES CSC/NWX/CCS/SKS BK FCST</code>)</td><td>부킹, <code>SVC NAME</code> 셀에서 서비스</td></tr><tr><td>통합 등록부 (<code>FES BK FCST</code>)</td><td>부킹 + 2구간/환적, 하단 <code>** CANCEL LIST</code>까지</td></tr><tr><td>항차별 BK SHEET (<code>… 마감</code>)</td><td>부킹, 선명/항차, <strong>BSA(TEU·톤)</strong>, DF 단가, 서류·화물 마감일, Win-Sabis 코드, 하단 <code>Cancel 정리</code></td></tr><tr><td><code>Schedule</code> / <code>SCHEDULE</code></td><td>서비스별 기항 순서와 항구별 ETD</td></tr><tr><td><code>&lt;SVC&gt; BSA</code></td><td>항차별 배정량, 선박 대체(<code>A =&gt; B</code>) 표기</td></tr><tr><td>DF 계산기 (<code>GFS_</code>, <code>BTL_</code>, <code>XPR_</code>)</td><td>단가, 약정 물량·중량, 할증</td></tr><tr><td>항차별 ROB</td><td>BSA 상한값 (적재계획 자체는 도구가 다시 계산)</td></tr><tr><td><code>.json</code> 프로젝트 파일</td><td>저장해둔 등록부 전체 복원</td></tr></tbody></table></div>
+<p><strong>판별하지 못한 시트는 버리지 않고 알려줍니다.</strong> <code>Changes</code> 탭 맨 위 <code>Last upload</code>에 &quot;이 시트는 인식하지 못했습니다&quot;로 나옵니다. (예: <code>7월 RCL 모선</code>, <code>서인도스케줄</code>, <code>위험물 CHECKLIST GFS</code> 같은 자유형식 시트)</p>
+<hr>
+<h2 id="d2-h14">4. 탭별 사용법</h2>
+<h3 id="d2-h15">4-1. Overview — 아침에 30초만 볼 화면</h3>
+<ul><li><strong>상단 4개 타일</strong> — 활성 부킹 수 / 활성 TEU / VGM 중량 / <strong>BSA 초과 항차 수</strong> 네 번째 타일에 &quot;초과 선복 몇 TEU&quot;가 같이 나옵니다. 바로 돈입니다.</li><li><strong>주차별 TEU 누적 막대</strong> — 서비스별 색으로 쌓여 있습니다. 막대에 마우스를 올리면 <code>WK 30 · CCS · 123.0 TEU</code>처럼 뜹니다.</li><li><strong>Service mix / Top lanes / Booking parties</strong> — 어디에 물량이 몰렸는지.</li><li><strong>Checks and exceptions</strong> — 여기가 핵심입니다. 아래 3종류가 섞여 나옵니다.</li><ul><li><code>OVER</code> — BSA(또는 중량) 초과 항차</li><li><code>WARN</code> — 파일 간 값 불일치, 서비스 헤더 오타 정정, TEU 재계산 불일치</li><li><code>INFO</code> — 서비스/ETD 누락, 모르는 항구 코드</li></ul><li><strong>Container mix</strong> — 20'DV, 40'HC, Void 등 실제 박스 구성.</li></ul>
+<h3 id="d2-h16">4-2. Voyages vs BSA — 돈이 보이는 화면</h3>
+<p>항차 한 줄씩. <strong>열 제목을 클릭하면 정렬</strong>됩니다.</p>
+<div class="tw"><table><thead><tr><th>열</th><th>뜻</th></tr></thead><tbody><tr><td><code>Booked TEU</code></td><td>부킹 수량 단순 합계</td></tr><tr><td><strong><code>Peak TEU</code></strong></td><td><strong>최대 선상 잔량 = 실제 필요한 선복</strong></td></tr><tr><td><code>BSA</code></td><td>우리 배정량</td></tr><tr><td><code>Remain</code></td><td>남은 선복. <strong>음수(빨강)면 초과</strong></td></tr><tr><td><code>Utilisation</code></td><td>이용률 막대. 85% 넘으면 주황, 100% 넘으면 빨강</td></tr><tr><td><code>Peak t / BSA t / Remain t</code></td><td>중량 기준 같은 것</td></tr><tr><td><code>DF cost / Selling / Margin</code></td><td>BK SHEET에 DF 원가가 있던 항차만 표시</td></tr></tbody></table></div>
+<blockquote><p><strong><code>Booked TEU</code>와 <code>Peak TEU</code>를 혼동하지 마세요.</strong> 부산에서 실어 첸나이에서 내린 박스는 그 뒤 구간 선복을 쓰지 않습니다. 선사와 정산할 근거는 <code>Peak TEU</code>입니다.</p></blockquote>
+<h3 id="d2-h17">4-3. ROB load plan — 구간별 상세</h3>
+<p>항차를 클릭해 펼치면 기항지 순서대로:</p>
+<pre><code>#  항구    ETD     적재  20'  40'  DG  OOG   양하   선상   잔여   중량
+1  CNTAO   04/25    37    0   18            
+2  KRPUS   04/27    30    ...              −30     37     42    416.7
+3  CNSHA   05/01     5                              42     37    494.3
+...</code></pre>
+<ul><li><code>선상(On-board)</code>이 그 구간에서 실제로 쓰는 선복입니다.</li><li><code>잔여(Remain)</code>가 음수면 그 구간이 초과입니다.</li><li><strong>어느 구간에서 터졌는지</strong>를 보고 어떤 부킹을 옮길지 판단합니다.</li></ul>
+<h3 id="d2-h18">4-4. Bookings — 원장 조회</h3>
+<ul><li>필터 + 검색으로 좁히고, 열 제목 클릭으로 정렬.</li><li>화면에는 <strong>최대 600행</strong>만 그립니다(빠르게 유지하려고). 전체는 엑셀로 받으세요.</li><li>맨 아래 합계 줄은 <strong>지금 화면에 보이는 행들의 합</strong>입니다.</li><li><code>St</code> 열의 <code>CXL</code>은 취소 건.</li><li><code>SVC</code> 열의 <strong>⚑ 표시</strong> = 원본 시트 헤더와 스케줄이 달라 스케줄을 따랐다는 뜻. 마우스를 올리면 원본에 뭐라고 적혀 있었는지 나옵니다.</li></ul>
+<h3 id="d2-h19">4-5. Changes — 지난주와 뭐가 달라졌나</h3>
+<p>위에서 아래로 4개 구역:</p>
+<ol><li><strong>Last upload</strong> — 방금 넣은 파일별로 몇 건 읽었고 어떤 시트를 못 읽었는지.</li><li><strong>Source disagreements</strong> — ⭐ <strong>가장 중요</strong>. 같은 부킹인데 파일마다 값이 다른 경우를 <strong>양쪽 출처(파일 › 시트)와 함께</strong> 나열합니다. 어느 쪽을 채택했는지도 표시됩니다. 손으로 확인해야 할 목록입니다.</li><li><strong>Merge history</strong> — 배치별 <code>신규/변경/동일/취소/중복접힘/누적</code> 이력.</li><li><strong>Row-level changes</strong> — 어느 B/L의 어느 항목이 무엇에서 무엇으로 바뀌었는지.</li></ol>
+<h3 id="d2-h20">4-6. Reference — 기준 정보</h3>
+<p>서비스별 기항 순서, 데이터에서 학습한 <strong>선박→서비스</strong> 대응표, 읽어들인 DF 계약 목록, 항구 코드표. 새 선박이 들어오면 여기서 서비스가 제대로 잡혔는지 확인하세요.</p>
+<hr>
+<h2 id="d2-h21">5. 필터 사용법</h2>
+<div class="tw"><table><thead><tr><th>필터</th><th>비고</th></tr></thead><tbody><tr><td><code>Service</code></td><td>CSC / NWX / CCS / SKS</td></tr><tr><td><code>Status</code></td><td><strong>기본값 Active</strong>. 취소 건을 보려면 <code>Cancelled</code> 또는 <code>Both</code></td></tr><tr><td><code>WK</code></td><td>주차 구간. 예: 30 ~ 33</td></tr><tr><td><code>POL</code> / <code>F.POD</code></td><td>선적항 / 최종 양하항</td></tr><tr><td><code>Party</code></td><td>부킹 주체</td></tr><tr><td>검색창</td><td>B/L, 선명, 품목, 고객, 영업사원 등 아무 단어</td></tr></tbody></table></div>
+<ul><li><code>초기화(Reset)</code> 버튼으로 한 번에 해제.</li><li>필터는 <strong>Overview, Voyages, ROB, Bookings에 모두 적용</strong>됩니다.</li><li><strong>엑셀 내보내기는 기본적으로 전체</strong>입니다. 화면에 보이는 것만 받고 싶으면 필터 줄 오른쪽 <code>Export only the filtered rows</code>를 체크하세요.</li></ul>
+<hr>
+<h2 id="d2-h22">6. 내보낸 엑셀 (14개 시트)</h2>
+<div class="tw"><table><thead><tr><th>시트</th><th>내용</th></tr></thead><tbody><tr><td><code>MASTER BK FCST</code></td><td>활성 부킹 전체. <strong>귀사 <code>FES BK FCST</code>와 같은 열 순서</strong> + 상태·출처 열</td></tr><tr><td><code>FES CSC/NWX/CCS/SKS BK FCST</code></td><td>서비스별. <strong>에이전트 양식과 같은 열 순서</strong> + 주차별 소계</td></tr><tr><td><code>VOYAGE SUMMARY</code></td><td>항차별 BSA 대비 이용률·중량·DF원가·판매·마진</td></tr><tr><td><code>ROB LOAD PLAN</code></td><td>항차 × 기항지 적재/양하/선상/잔여 (20'·40', NDG·DG·OOG 구분)</td></tr><tr><td><code>WEEK SUMMARY</code></td><td>주차 × 서비스 TEU 행렬</td></tr><tr><td><code>LANE SUMMARY</code></td><td>POL → 최종 POD 구간별</td></tr><tr><td><code>PARTY SUMMARY</code></td><td>부킹 주체 / 고객별</td></tr><tr><td><code>CANCEL LIST</code></td><td>취소 건 (MASTER와 동일 양식)</td></tr><tr><td><code>CHANGE LOG</code></td><td>배치 이력 + 항목별 변경 전/후</td></tr><tr><td><code>DF CONTRACTS</code></td><td>읽어들인 DF 계약</td></tr><tr><td><code>DATA QUALITY</code></td><td>총계·박스구성·전체 점검결과 + <strong>출처 불일치 표</strong></td></tr></tbody></table></div>
+<ul><li>날짜는 <strong>진짜 날짜 값</strong>입니다(<code>yyyy-mm-dd</code> 서식). 피벗·필터·수식 다 됩니다.</li><li>헤더 고정(틀 고정)과 자동 필터가 걸려 있습니다.</li><li>한글은 그대로 보존됩니다.</li><li>파일명 예: <code>FES_BK_FCST_CONSOLIDATED_20260725_1432.xlsx</code></li></ul>
+<hr>
+<h2 id="d2-h23">7. 백업과 기기 이동</h2>
+<div class="tw"><table><thead><tr><th>버튼</th><th>언제 쓰나</th></tr></thead><tbody><tr><td><code>Save project file</code></td><td><strong>정기적으로</strong>, 그리고 다른 PC로 옮길 때. <code>.json</code> 하나로 등록부 전체가 저장됩니다</td></tr><tr><td><code>.json</code>을 다시 드롭</td><td>저장한 등록부를 복원</td></tr><tr><td><code>Clear register</code></td><td>새 시즌 시작 등 처음부터 다시 할 때. <strong>되돌릴 수 없습니다</strong> (확인창이 뜹니다)</td></tr></tbody></table></div>
+<p>등록부는 브라우저에 자동 저장되어 창을 닫아도 남습니다. 다만 브라우저 저장 공간은 약 5MB(부킹 4,000~5,000건)가 한계이고, <strong>한계에 가까워지면 미리 경고</strong>합니다. 그때는 프로젝트 파일로 저장하고지난 시즌을 정리하세요.</p>
+<h3 id="d2-h24">⚠️ 등록부는 사람마다 따로입니다</h3>
+<p><strong>홈페이지로 열든 파일로 열든, 등록부는 그 브라우저에만 쌓입니다.</strong> 공유 서버가 없기 때문입니다.</p>
+<ul><li>같은 홈페이지를 두 사람이 열어도 <strong>서로의 등록부는 보이지 않습니다.</strong></li><li>회사 PC에서 넣은 파일은 집 PC에서 안 보입니다.</li><li>브라우저 기록을 지우면 등록부도 같이 지워집니다.</li></ul>
+<p><strong>여럿이 같은 등록부를 봐야 한다면</strong> <code>Save project file</code>로 <code>.json</code>을 만들어공유 폴더나 메일로 넘기고, 받은 쪽이 그걸 드롭하면 됩니다. 이게 현재 유일한 공유 방법입니다. (실시간 공유가 필요하면 별도 작업입니다 — 서버가 생기고, 그러면 보안 검토가 따라옵니다.)</p>
+<hr>
+<h2 id="d2-h25">8. 이런 상황이면 (FAQ)</h2>
+<p><strong>Q. 파일을 넣었는데 &quot;인식된 시트 없음&quot;이 뜬다</strong> → 헤더 행에 <code>B/L NO</code>와 컨테이너 규격 열(<code>20'DV</code> 등)이 있어야 부킹 시트로 봅니다. 자유형식 메모 시트는 원래 대상이 아닙니다. <code>Changes › Last upload</code>에서어떤 시트를 건너뛰었는지 확인하세요.</p>
+<p><strong>Q. 취소한 부킹이 계속 살아 있다</strong> → 취소는 <strong>한 번 취소되면 유지</strong>됩니다(어느 파일에서든 취소로 나오면 취소). 나중에 올린 파일이 취소 목록을 지워버리는 사고를 막기 위한 설계입니다. 되살려야 하면 알려주세요(현재는 <code>Clear</code> 후 재적재해야 합니다).</p>
+<p><strong>Q. <code>Peak TEU</code>가 <code>Booked TEU</code>보다 작다</strong> → 정상입니다. 중간 기항지에서 내린 박스만큼 선복이 풀린 것입니다.</p>
+<p><strong>Q. 이용률이 100%를 넘는다</strong> → 실제로 BSA를 초과한 것입니다. 초과 선복 비용이 발생합니다. 지금 데이터에서는 27개 항차, 476 TEU가 초과였습니다.</p>
+<p><strong>Q. 서비스에 ⚑ 표시가 붙었다</strong> → 원본 시트의 <code>SVC Name</code>과 그 항차의 스케줄이 다릅니다. 한 선박이 한 항차에 두 루프를 돌 수는 없으므로 스케줄을 따랐습니다. <code>Overview › Checks</code>에 어느 시트를 고쳐야 하는지 나옵니다.</p>
+<p><strong>Q. 값이 이상한데 어느 파일에서 왔는지 알고 싶다</strong> → <code>Bookings</code> 탭 맨 오른쪽 <code>Source</code> 열(시트명, 마우스 올리면 파일명), 그리고 엑셀 <code>MASTER BK FCST</code>의 <code>Source File / Source Sheet / Src Row</code> 열.</p>
+<p><strong>Q. 같은 부킹이 두 파일에 있고 값이 다르면 어느 쪽을 쓰나</strong> → ① 항차별 BK SHEET(마감) &gt; 통합 등록부·에이전트 예보, ② 같은 등급이면 <strong>더 최근에 저장된 파일</strong>, ③ 그래도 같으면 파일명·시트명 순서(항상 같은 결과가 나오도록). 어느 쪽을 버렸는지는 <code>Changes › Source disagreements</code>에 전부 남습니다.</p>
+<hr>
+<h2 id="d2-h26">9. 알아둘 한계</h2>
+<ul><li><strong>항차 번호는 선명+항차번호로만 식별</strong>합니다. 연도 구분이 없으므로 25년 파일과 26년 파일을 같이 넣으면 같은 항차번호가 합쳐집니다. <strong>시즌별로 등록부를 나누어 쓰세요.</strong></li><li><strong>B/L이 없는 행</strong>(<code>MT</code>, <code>FULL</code>, <code>T.B.N</code>, 공컨 회수)은 문서번호가 없어항차·구간·거래처·박스구성·비고와 <strong>시트 내 등장 순서</strong>로 식별합니다. 그 행의 비고를 고치면 새 행처럼 보이고, 같은 모양 행 사이에 한 줄을끼워 넣으면 뒤 행들의 식별이 밀립니다.</li><li><strong>마진은 부분적</strong>입니다. 항차 BK SHEET에 DF 원가가 있는 항차만 계산합니다. 초과 선복 단가와 할증은 <code>DF CONTRACTS</code>에 참고용으로만 실려 있습니다.</li><li><strong><code>.xls</code>(구형)는 지원하지 않습니다.</strong> <code>.xlsx</code>만 됩니다.</li><li>운임 파일 6종은 아직 연결되지 않았습니다(판매운임 자동 적용은 다음 단계).</li></ul></article><article class="doc-body" id="d3"><h1 id="d3-h1">3단계 — 설계 지침서</h1>
+<p>두 가지 용도로 씁니다.</p>
+<ol><li><strong>내가 이해하기</strong> — 코드를 한 줄도 안 읽고 이 도구가 어떻게 굴러가는지 파악</li><li><strong>남에게 설명하기</strong> — 팀장, 동료, IT 담당자에게 그대로 읽어줘도 통하는 설명</li></ol>
+<p>프로그램 코드는 나오지 않습니다. (§6 끝의 배포 명령 몇 줄만 예외인데, 그건 읽는 게 아니라 그대로 붙여넣는 것입니다.) 기술 상세가 필요하면 <a href="#d4">부록</a>으로.</p>
+<hr>
+<h2 id="d3-h2">1. 한 문장으로</h2>
+<blockquote><p><strong>여러 곳에서 온 엑셀을 하나의 장부로 합쳐서, 배에 실제로 몇 개가 실리는지계산하고, 다시 엑셀로 내보내는 프로그램.</strong></p></blockquote>
+<p>길이별 설명 대본:</p>
+<p><strong>30초 (엘리베이터)</strong></p>
+<blockquote><p>지금은 에이전트가 보낸 예보, 우리 통합 등록부, 항차별 마감 시트가 따로 있어서같은 부킹이 세 군데에 있고 값이 다를 때 알 방법이 없습니다. 이걸 파일 하나에끌어다 놓으면 자동으로 합쳐서, 어느 항차가 BSA를 넘겼는지 바로 보여주고통합 엑셀로 내보냅니다. 설치도 로그인도 없고, 데이터는 PC 밖으로 안 나갑니다.</p></blockquote>
+<p><strong>1분 (실무자에게)</strong></p>
+<blockquote><p>매주 하던 일이 그대로 남아 있습니다. 엑셀을 받고, 통합하고, 회신하는 것. 달라지는 건 통합을 손으로 안 한다는 것뿐입니다. 파일을 끌어다 놓으면지난주와 뭐가 바뀌었는지, 어느 부킹이 파일마다 값이 다른지, 어느 항차가선복을 넘겼는지를 목록으로 뽑아줍니다. 결과물도 우리가 쓰던 열 순서 그대로나오니까 받는 쪽에서 위화감이 없습니다.</p></blockquote>
+<p><strong>3분 (경영진에게)</strong> — §7의 대본 사용</p>
+<hr>
+<h2 id="d3-h3">2. 비유로 보는 전체 구조</h2>
+<p><strong>여러 나라에서 서류가 들어오는 사무실</strong>이라고 생각하면 정확합니다. 다섯 명이 순서대로 일합니다.</p>
+<pre><code>   ①접수원        ②번역가        ③장부담당       ④회계사        ⑤비서
+      │              │              │              │              │
+  어떤 양식이든   표기를 하나로   같은 건인지    배에 실제로    보고서 인쇄
+   읽어낸다      통일한다        판단해 대장에   몇 개 실리는지   화면 표시
+                                올린다          계산한다</code></pre>
+<div class="tw"><table><thead><tr><th>담당</th><th>하는 일</th><th>구체적으로</th></tr></thead><tbody><tr><td><strong>①접수원</strong></td><td>양식을 가리지 않고 읽는다</td><td>시트 이름이 <code>마감</code>이든 <code>(0726)</code>이든 상관없이, <strong>표의 머리글을 보고</strong> &quot;이건 에이전트 예보&quot;, &quot;이건 항차 마감 시트&quot;라고 판별</td></tr><tr><td><strong>②번역가</strong></td><td>같은 걸 같다고 만든다</td><td><code>MYPKG(N)</code> <code>MYPKN</code> <code>NPKL</code> → 모두 클랑(북). <code>FARMKO</code> <code>팜코</code> → 한 회사. <code>CHSHA</code> 오타 → 상해</td></tr><tr><td><strong>③장부담당</strong></td><td>중복은 합치고, 다르면 보고</td><td>같은 B/L이 세 파일에 있으면 한 줄로. 값이 어긋나면 <strong>어느 파일에서 뭐라고 했는지 양쪽 다 적어서 보고</strong></td></tr><tr><td><strong>④회계사</strong></td><td>진짜 숫자를 낸다</td><td>기항지 순서를 따라가며 실었다 내렸다를 계산해 <strong>최대 동시 적재량</strong>을 구함</td></tr><tr><td><strong>⑤비서</strong></td><td>사람이 읽을 형태로</td><td>화면 6개 탭 + 엑셀 14시트</td></tr></tbody></table></div>
+<p><strong>이 순서가 곧 프로그램 구조입니다.</strong> 파일 하나를 열어보면 <code>zip → xlsx-read → parse → normalize → merge → aggregate → ui/export</code> 순서로 되어 있는데, 위 다섯 명과 1:1로 대응합니다.</p>
+<p>AI에게 수정을 맡길 때 <strong>&quot;어느 담당의 일인가&quot;만 짚어주면 됩니다.</strong> &quot;항구 표기가 하나 더 있어&quot; → 번역가(②). &quot;새 양식이 왔어&quot; → 접수원(①).</p>
+<h3 id="d3-h4">그리고 여섯 번째 — 「편집자」</h3>
+<p>주 업무인 <strong>파일 갱신</strong>은 위 흐름과 다른 길을 갑니다. 집계해서 새 보고서를 쓰는 게 아니라, <strong>기존 등록부를 펼쳐놓고 필요한 줄만 고쳐 씁니다.</strong></p>
+<pre><code>   ①접수원        ②번역가        ⑥편집자
+      │              │              │
+  학습.xlsx를     표기 통일      기존 등록부를 열어
+   읽는다                        · 있는 건은 그 줄을 고치고
+                                · 없는 건은 줄을 끼워 넣고
+                                · 밀려난 아래쪽을 정리하고
+                                → 새 사본으로 저장</code></pre>
+<p>편집자는 <strong>원고 전체를 다시 타이핑하지 않습니다.</strong> 그래서 손대지 않은 부분 (수식·서식·그림·메모·다른 시트)이 그대로 남습니다. 이게 설계 결정 ③-0입니다.</p>
+<p>담당 모듈: <code>xlsx-edit.js</code>(파일 정밀 편집) + <code>propagate.js</code>(어느 칸에 무엇을 쓸지).</p>
+<hr>
+<h2 id="d3-h5">3. 왜 이렇게 만들었나 — 핵심 결정들</h2>
+<p>각 결정마다 <strong>&quot;다르게 했다면 어떻게 됐을까&quot;</strong>를 붙였습니다. 설명할 때 이 대비가 제일 잘 먹힙니다.</p>
+<h3 id="d3-h6">① 설치가 필요 없는 파일 하나로</h3>
+<p><strong>다르게 했다면</strong> — 서버를 세우고 계정을 만들고 사내 IT 승인을 받아야 합니다. 담당자가 바뀌면 인수인계에 &quot;이 서버 관리법&quot;이 추가됩니다.</p>
+<p><strong>이렇게 한 이유</strong> — 이 PC에는 개발 도구가 하나도 깔려 있지 않았습니다. 프로그램 설치 권한이 없거나 IT 승인이 오래 걸리는 환경에서도 <strong>더블클릭 한 번</strong>으로 돌아가야 했습니다. 파일 하나(192KB)라서메일로 보내면 그게 곧 배포입니다.</p>
+<h3 id="d3-h7">② 인터넷을 전혀 쓰지 않음</h3>
+<p><strong>다르게 했다면</strong> — 부킹 데이터, 고객명, 운임이 외부 서버를 거칩니다. &quot;이 도구 써도 되나요?&quot;를 보안팀에 물어야 합니다.</p>
+<p><strong>이렇게 한 이유</strong> — 실을 수 있는 물량, 판매 단가, 거래처 목록은 <strong>경쟁 정보</strong>입니다. 외부로 나가는 통신이 <strong>한 건도 없게</strong> 만들었습니다. 와이파이를 끄고 써도 똑같이 동작합니다. 이건 IT 담당자에게 &quot;통신 안 합니다&quot;로 한 문장에 설명됩니다.</p>
+<blockquote><p>이 때문에 엑셀을 읽고 쓰는 기능을 남의 라이브러리 안 쓰고 직접 만들었습니다. 라이브러리를 쓰면 그걸 인터넷에서 받아와야 하거나 파일이 5배로 커집니다.</p></blockquote>
+<h3 id="d3-h8">③-0. 파일을 새로 만들지 않고, 기존 파일을 고침 ⭐⭐</h3>
+<p><strong>다르게 했다면</strong> — &quot;통합 결과&quot;라는 새 엑셀을 하나 만들어 줍니다. 그런데 그건담당자가 쓰던 등록부가 아닙니다. 수식도 서식도 그림도 메모도 없는 딴 파일입니다. 결국 사람이 그걸 보고 원래 등록부에 다시 옮겨 적어야 합니다. <strong>일이 안 줄어듭니다.</strong></p>
+<p><strong>이렇게 한 이유</strong> — 원하는 건 &quot;새 보고서&quot;가 아니라 <strong>&quot;내 파일이 갱신된 것&quot;</strong>입니다. 그래서 대상 파일을 통째로 다시 만들지 않고, <strong>필요한 칸만 골라서 고칩니다.</strong></p>
+<p>집을 새로 짓는 게 아니라 <strong>벽지만 바르는 것</strong>에 가깝습니다. 건드리지 않은 부분은 1비트도 바뀌지 않으니 수식·서식·그림·메모가 원래대로 남습니다.</p>
+<p>행을 새로 끼워 넣을 때 따라 움직여야 하는 것들이 있습니다 — 아래쪽 수식의 행 번호, 조건부 서식 범위, 메모 위치, 자동 필터 범위, 정의된 이름. 엑셀이 손으로 삽입할 때해주는 일을 프로그램이 대신 합니다. 실제 파일에서 그 항목이 <strong>11가지</strong>였고, 전부열거해서 하나씩 맞췄습니다. 검증은 엑셀로 직접 열어서 했습니다 — <strong>&quot;복구가 필요합니다&quot; 없이 열리고, 새 행의 수식이 실제로 계산되고, <code>Schedule</code> 시트 셀 차이가 0</strong>이어야 통과입니다.</p>
+<h3 id="d3-h9">③ 엑셀을 없애지 않고, 엑셀을 그대로 씀 ⭐</h3>
+<p><strong>다르게 했다면</strong> — &quot;이제 엑셀 그만 쓰고 이 시스템에 직접 입력하세요&quot;가 됩니다. 해외 에이전트, 선사, 한국 포워더 <strong>전부</strong>를 설득해야 합니다. 실패합니다.</p>
+<p><strong>이렇게 한 이유</strong> — 엑셀 주고받기는 <strong>없앨 수 없는 현실</strong>입니다. 상대가 우리 시스템을 쓸 이유가 없으니까요. 그래서 도구는 <strong>받는 엑셀도 그대로, 보내는 엑셀도 그대로</strong>입니다. 내보낸 파일의 열 순서를 귀사 <code>FES BK FCST</code>와 똑같이 맞춘 게 그 이유입니다. 받는 쪽에서는 뭐가 바뀐 줄도 모릅니다.</p>
+<p>바뀌는 건 <strong>중간의 손작업만</strong> 입니다.</p>
+<h3 id="d3-h10">④ 원본 값을 절대 고치지 않음</h3>
+<p><strong>다르게 했다면</strong> — 도구가 &quot;이 서비스는 틀렸으니 고쳐놨습니다&quot; 하고값을 바꿔버립니다. 나중에 원래 뭐였는지 알 수 없습니다.</p>
+<p><strong>이렇게 한 이유</strong> — 원본은 그대로 두고, 보정한 값을 <strong>옆 칸에 따로</strong> 둡니다. 집계는 보정값으로 하고, 화면에는 ⚑ 표시를 붙여 &quot;원본은 이랬다&quot;를 볼 수 있게 합니다.</p>
+<p>이걸 어겼다가 실제로 사고가 났습니다 — 원본을 덮어쓰니까, 다음에 같은 파일을 넣으면 원본이 다시 자기 값을 주장하고, 또 고치고, <strong>무한 반복</strong>됐습니다(§5-③).</p>
+<h3 id="d3-h11">⑤ 값이 충돌하면 조용히 정하지 않음</h3>
+<p><strong>다르게 했다면</strong> — 도구가 알아서 하나 고릅니다. 편하지만, <strong>틀렸을 때 아무도 모릅니다.</strong></p>
+<p><strong>이렇게 한 이유</strong> — 규칙대로 하나를 고르되 <strong>버린 값과 양쪽 출처를 전부 기록</strong>합니다. <code>Changes › Source disagreements</code>와 엑셀 <code>DATA QUALITY</code> 시트에 &quot;이 B/L의 ETD가 A파일은 7/31, B파일은 7/27. 7/31을 썼습니다&quot;가 남습니다.</p>
+<p><strong>통합 도구의 신뢰는 여기서 결정됩니다.</strong> 사람이 모르게 값을 고르기 시작하면아무도 결과를 믿지 않습니다.</p>
+<h3 id="d3-h12">⑥ 주소로 나눠주되, 자료는 올리지 않음</h3>
+<p><strong>다르게 했다면</strong> — 흔히 하는 방식은 자료까지 서버에 올려서 모두가 같은 화면을보게 하는 것입니다. 편리합니다. 그런데 그 순간 <strong>부킹 자료가 남의 컴퓨터에저장됩니다.</strong> 유출되면 우리 책임이고, 보안 검토·계약·비용이 전부 따라옵니다.</p>
+<p><strong>이렇게 한 이유</strong> — 나눠줄 게 <strong>도구뿐이지 자료가 아니라는 점</strong>을 이용했습니다. 홈페이지는 도구를 <strong>배달만</strong> 하고, 배달이 끝나면 그때부터는 방문자 브라우저안에서만 돌아갑니다. 서버는 자료를 받지도, 보관하지도 않습니다. 설계 ②(외부 통신 없음)를 깨지 않고 &quot;아무나 접속&quot;을 얻은 것입니다.</p>
+<p>값은 있습니다 — <strong>등록부가 사람마다 따로 쌓입니다.</strong> 실시간 공유가 안 됩니다. 지금은 <code>.json</code> 파일을 주고받는 게 유일한 공유 방법입니다. 이건 감춘 게 아니라 <strong>의도한 교환</strong>이고, 매뉴얼 §7에 그대로 적어뒀습니다.</p>
+<p><strong>PIN에 대해서는 부풀리지 말아야 합니다.</strong></p>
+<blockquote><p>이 4자리는 <strong>자물쇠가 아니라 문고리</strong>입니다. 검사가 방문자 브라우저 안에서일어나므로, 마음먹고 뜯어보면 통과할 수 있습니다. 막아주는 것은 &quot;주소를 우연히 아는 사람이 그냥 들어오는 것&quot;까지입니다.</p></blockquote>
+<p>그래도 이렇게 둔 이유는 <strong>홈페이지에 자료가 없기 때문</strong>입니다. 지켜야 할 게비어 있는 도구뿐이라 위험이 낮습니다. 자료를 올리게 되는 순간 <strong>이 판단은 즉시 무효</strong>가 되고, 그때는 진짜 인증(이메일 확인 등)이 필요합니다.</p>
+<p>이걸 설명할 때 절대 하지 말아야 할 말: &quot;PIN 걸어놨으니 안전합니다.&quot; 정확한 말은 <strong>&quot;안에 지킬 자료가 없고, PIN은 우연한 방문을 막는 용도입니다.&quot;</strong></p>
+<hr>
+<h2 id="d3-h13">4. 가장 중요한 아이디어 3개</h2>
+<p>기술이 아니라 <strong>업무 통찰</strong>입니다. 이 셋만 이해하면 도구를 다 이해한 겁니다.</p>
+<h3 id="d3-h14">① 선복은 &quot;합계&quot;가 아니라 &quot;최대 동시 점유&quot; — 호텔 객실과 같다 ⭐⭐</h3>
+<blockquote><p><strong>호텔에 한 달간 100명이 묵었다고 방 100개가 필요한 게 아닙니다. 같은 날 밤에 최대 몇 명이 있었는지가 필요한 방 수입니다.</strong></p></blockquote>
+<p>배도 똑같습니다. 부산에서 실어 첸나이에서 내린 컨테이너는 <strong>그 이후 구간의 선복을 쓰지 않습니다.</strong></p>
+<p>실제 숫자로:</p>
+<div class="tw"><table><thead><tr><th></th><th>TIGER CHENNAI 2605W</th></tr></thead><tbody><tr><td>부킹 합계</td><td>105 TEU</td></tr><tr><td><strong>최대 동시 적재</strong></td><td><strong>81 TEU</strong> ← 실제 필요한 선복</td></tr><tr><td>BSA(우리 배정)</td><td>50 TEU</td></tr><tr><td>초과</td><td><strong>31 TEU</strong> (합계로 보면 55로 착각)</td></tr></tbody></table></div>
+<p>귀사 BK SHEET의 Grand Total도 81입니다. 즉 <strong>원래 이렇게 세고 계셨고</strong>, 도구가 그걸 자동화한 것입니다. 합계로 계산하면 초과 선복 비용을 <strong>24 TEU만큼 과다 계상</strong>합니다.</p>
+<p>그래서 화면에 <code>Booked TEU</code>와 <code>Peak TEU</code>를 나란히 놓았습니다. 정산 근거는 항상 <code>Peak</code>입니다.</p>
+<h3 id="d3-h15">② 같은 부킹인지 어떻게 알아보나 — 주민번호가 있는 사람과 없는 사람</h3>
+<p>세 파일에 흩어진 부킹이 &quot;같은 건&quot;인지 판단해야 합니다.</p>
+<p><strong>B/L 번호가 있으면 쉽습니다</strong> — 주민번호처럼 씁니다. <code>B/L번호 + 선명·항차 + 양하항</code>이 같으면 같은 건.</p>
+<p><strong>문제는 B/L이 없는 행입니다.</strong> 공컨 회수는 B/L 자리에 <code>MT</code>, <code>FULL</code>, <code>T.B.N</code>처럼 적혀 있습니다. 주민번호 없는 사람을 구별하는 셈입니다. 그래서 <strong>얼굴 특징을 조합</strong>합니다 — 항차 + 구간 + 거래처 + 박스 구성 + 비고, <strong>그리고 &quot;그 시트에서 몇 번째로 나온 같은 모양인지&quot;</strong>.</p>
+<p>마지막 조건이 없으면 사고가 납니다. 같은 시트에 똑같이 생긴 공컨 3줄이실제로는 별개 부킹인데 1줄로 뭉개집니다. 실제로 <strong>3건 7 TEU가 사라지고</strong> 있었습니다(§5-①).</p>
+<p><strong>부작용도 정직하게</strong>: 그 행의 비고를 고치면 새 행처럼 보입니다. 매뉴얼 §9에 적어뒀습니다.</p>
+<h3 id="d3-h16">③ 파일 넣는 순서가 결과를 바꿔선 안 된다 — 장부는 정리 순서와 무관하다</h3>
+<p>영수증을 어떤 순서로 정리하든 월말 합계는 같아야 합니다. 당연한데, 프로그램에서는 당연하지 않습니다.</p>
+<p>처음엔 <strong>파일을 들어오는 대로 둘씩 합쳤습니다.</strong> 그러면 이런 일이 생깁니다:</p>
+<blockquote><p>빈칸을 신뢰도 낮은 파일이 먼저 채워버리면, 나중에 온 신뢰도 높은 파일이 <strong>더 이상 고칠 수 없습니다.</strong></p></blockquote>
+<p>정순으로 넣으면 선명이 <code>X-PRESS PHOENIX</code>, 역순으로 넣으면 <code>X-PRESS PHOEINIX</code>가됐습니다. 같은 데이터인데요.</p>
+<p><strong>해결</strong> — 둘씩 합치는 걸 버리고, <strong>같은 부킹의 사본을 전부 모아놓고신뢰도 순으로 줄 세운 다음, 항목마다 &quot;값을 가진 가장 신뢰도 높은 사본&quot;에서</strong> 가져옵니다.</p>
+<p>신뢰도 순서(설명할 때 이대로 쓰면 됩니다):</p>
+<ol><li><strong>항차별 마감 시트</strong> — 실제 선적 확정본이니 가장 정확</li><li><strong>통합 등록부 / 에이전트 예보</strong> — 같은 등급</li><li>같은 등급이면 <strong>더 최근에 저장된 파일</strong></li><li>그래도 같으면 파일명 순서 (결과가 항상 같게 하려고)</li></ol>
+<p>검증: 정순·역순·섞은 순서 세 가지가 <strong>완전히 동일한 결과</strong>. 9가지 파일 조합을 반복 투입해도 변경 0건.</p>
+<hr>
+<h2 id="d3-h17">5. 실패에서 배운 것 (비개발자에게 설명하기 좋은 사례)</h2>
+<p>&quot;AI로 만들었는데 믿을 수 있나요?&quot;라는 질문에 대한 답이 이 절입니다. <strong>만드는 동안 조용히 틀린 답을 내던 문제 10개를 찾아 고쳤습니다.</strong> 전부 에러 메시지 없이, 그럴싸한 숫자를 내놓고 있었습니다.</p>
+<p>대표 3개만 (전체는 <a href="#d4">부록</a> §5):</p>
+<h3 id="d3-h18">① 부킹 3건이 사라지고 있었음</h3>
+<p>B/L 자리에 <code>FULL</code>이라고 적힌 행 8개를 프로그램이 &quot;빈칸&quot;으로 못 알아봤습니다. 그래서 서로 다른 부킹 3건이 1건으로 합쳐졌습니다. <strong>7 TEU가 조용히 사라졌습니다.</strong> → 교훈: 업무 파일의 &quot;빈칸&quot;은 진짜 빈칸이 아니라 <strong>관용어</strong>다.</p>
+<h3 id="d3-h19">② 같은 화물을 두 번 실었다고 계산</h3>
+<p>CCS 항로는 청도와 부산을 <strong>두 번</strong> 기항합니다. 프로그램이 항구 이름만 보고매칭해서, 첫 기항에서 실은 화물을 마지막 기항에서 또 실었습니다. 필요 선복이 42 TEU인데 <strong>75 TEU로 계산</strong>됐습니다. → 교훈: 항로는 &quot;항구 목록&quot;이 아니라 <strong>순서가 있는 여정</strong>이다.</p>
+<h3 id="d3-h20">③ 같은 파일을 넣을 때마다 값이 바뀜</h3>
+<p>&quot;이 서비스 표기가 틀렸다&quot;고 판단해서 원본을 고쳐놨더니, 다음에 같은 파일을 넣으면 원본이 다시 자기 값을 주장하고, 또 고치고, <strong>영원히 왔다갔다</strong> 했습니다. → 교훈: 읽은 값과 계산한 값을 <strong>섞지 말 것.</strong></p>
+<h3 id="d3-h21">④ 버튼이 하나도 안 눌리고 있었음 ⚠️ (가장 부끄러운 것)</h3>
+<p>화면을 만들 때, 존재하지 않는 버튼(<code>btnLoadProj</code>)에 기능을 붙이는 코드가한 줄 있었습니다. 그 한 줄에서 오류가 나면서 <strong>그 뒤에 등록되는 모든 클릭 기능이통째로 죽었습니다.</strong> 탭 전환도, 정렬도, 실행 버튼도 전부 안 눌렸습니다.</p>
+<p><strong>그런데 오랫동안 못 찾았습니다.</strong> 제가 검증할 때 화면을 &quot;그려지는지&quot;만 확인하고버튼은 프로그램으로 우회해서 눌렀기 때문입니다. 사람이 실제로 클릭하는 경로를한 번도 안 밟았습니다.</p>
+<p>→ 교훈 둘:</p>
+<blockquote><p><strong>화면이 그려지는 것과 눌리는 것은 다른 문제다.</strong> 반드시 실제로 클릭해서 확인.</p>
+<p>그리고 <strong>한 곳의 오류가 다른 기능까지 죽이지 않게</strong> 만들어야 합니다. 이제는 없는 버튼을 만나면 그 하나만 건너뛰고 경고를 남깁니다.</p></blockquote>
+<h3 id="d3-h22">⑤ 배포 스크립트가 &quot;정상&quot;을 오류로 알아듣고 죽었음</h3>
+<p>홈페이지를 올리는 스크립트에 &quot;저장소가 이미 있는지 확인&quot; 단계를 넣었습니다. <strong>첫 배포에서는 당연히 없는 게 정답</strong>인데, 확인 명령이 &quot;없습니다&quot;를오류 형태로 출력했고, 스크립트가 그걸 진짜 오류로 받아 그 자리에서 멈췄습니다.</p>
+<p>제가 시험한 건 &quot;저장소가 있을 때&quot;뿐이었습니다. <strong>한 번도 안 해본 첫 실행에서바로 터진 것</strong>입니다.</p>
+<p>→ 교훈:</p>
+<blockquote><p><strong>&quot;아무 문제 없을 때&quot;만 시험하면, 문제 있을 때 죽는 걸 못 봅니다.</strong> 특히 <strong>처음 한 번만 지나가는 경로</strong>(최초 실행, 빈 상태, 최초 설치)는개발 중에 가장 안 밟아보는 길이면서 사용자가 <strong>반드시 첫 번째로 밟는 길</strong>입니다.</p></blockquote>
+<h3 id="d3-h23">⑥ 문에 비밀번호를 적어 붙여놨음 ⚠️</h3>
+<p>PIN을 빌드 스크립트 안에 <code>PIN = &quot;....&quot;</code> 로 적어뒀습니다. 그 스크립트는소스의 일부라서 <strong>공개 저장소에 같이 올라갔습니다.</strong> 게다가 제가 매뉴얼에 &quot;PIN ○○○○을 누르세요&quot;라고 친절하게 써서 그것까지 같이 올렸습니다.</p>
+<p><strong>자물쇠를 달고 열쇠를 문에 테이프로 붙여놓은 셈</strong>입니다.</p>
+<p>고친 방법:</p>
+<ol><li>PIN을 <code>pin.txt</code> 파일 하나로 빼고, 그 파일은 <strong>저장소에 못 올라가게</strong> 막음</li><li>빌드할 때마다 <strong>결과물에 PIN 숫자가 들어 있으면 빌드를 거부</strong></li><li>문서에서는 숫자를 빼고 &quot;담당자에게 확인하세요&quot;로 바꿈</li></ol>
+<p>→ 교훈:</p>
+<blockquote><p><strong>비밀은 &quot;안 적으면 된다&quot;가 아니라 &quot;적을 수 없게 만들어야&quot; 지켜집니다.</strong> 사람이 조심하는 것에 기대면 언젠가 새어 나갑니다. 기계가 막게 하세요.</p>
+<p>그리고 <strong>한 번 공개된 비밀은 지워도 되돌아오지 않습니다.</strong> git은 파일을 지워도 과거 커밋에 남습니다. 새어 나갔으면 지우는 게 아니라 <strong>바꿔야</strong> 합니다.</p></blockquote>
+<h3 id="d3-h24">그래서 검증을 5중으로 걸었습니다</h3>
+<div class="tw"><table><thead><tr><th>단계</th><th>확인하는 것</th></tr></thead><tbody><tr><td>1</td><td>원본 파일로 전 과정 실행 + 알려진 셀 값 18개 대조</td></tr><tr><td>2</td><td>같은 파일 반복 투입 → <strong>변경 0건</strong>이어야 통과</td></tr><tr><td>3</td><td>파일 순서를 바꿔도 → <strong>완전히 같은 결과</strong>여야 통과</td></tr><tr><td>4</td><td><strong>실제로 클릭해서</strong> 탭·버튼·정렬·필터가 다 동작하는지 (④의 교훈)</td></tr><tr><td>5</td><td><strong>엑셀로 실제로 열어서</strong> 복구 없이 열리는지, 수식이 계산되는지, 한글이 살았는지</td></tr></tbody></table></div>
+<p>5번이 최종 관문입니다. 확인한 것:</p>
+<ul><li>분석 리포트: 엑셀이 계산한 합계 <strong>4,920 TEU가 3개 시트에서 전부 일치</strong></li><li>파일 갱신: <strong>&quot;복구가 필요합니다&quot; 없이 열림</strong>, 새 행의 <code>=WEEKNUM</code>·TEU 수식이실제 계산됨, 서식·그림·메모 보존, <code>Schedule</code> 시트 <strong>셀 차이 0</strong>, TEU 합계 증가분 116이 신규 11행 합계와 정확히 일치</li></ul>
+<hr>
+<h2 id="d3-h25">6. AI에게 수정을 맡길 때 ⭐</h2>
+<p>바이브 코딩으로 이어가실 거라면 이 절이 제일 실용적입니다.</p>
+<h3 id="d3-h26">안전한 요청 (마음껏 하세요)</h3>
+<div class="tw"><table><thead><tr><th>요청 예시</th><th>왜 안전한가</th></tr></thead><tbody><tr><td>&quot;항구 코드 <code>INHZR</code> 추가해줘&quot;</td><td>번역가(②) 사전에 한 줄 추가. 다른 데 영향 없음</td></tr><tr><td>&quot;선명 오타 <code>WAN HAl 521</code> 도 잡아줘&quot;</td><td>위와 같음</td></tr><tr><td>&quot;새 양식이 왔는데 머리글이 <code>BL NUMBER</code>야&quot;</td><td>접수원(①) 사전에 한 줄</td></tr><tr><td>&quot;엑셀에 거래처별 월간 시트 추가해줘&quot;</td><td>비서(⑤)만 건드림</td></tr><tr><td>&quot;화면 색/문구/열 순서 바꿔줘&quot;</td><td>표시만 바뀜</td></tr><tr><td>&quot;이 경고 문구를 한국어로 바꿔줘&quot;</td><td>표시만 바뀜</td></tr></tbody></table></div>
+<h3 id="d3-h27">조심할 요청 (해도 되지만 반드시 검증)</h3>
+<div class="tw"><table><thead><tr><th>요청 예시</th><th>위험한 이유</th></tr></thead><tbody><tr><td>&quot;같은 부킹 판단 기준을 바꿔줘&quot;</td><td>장부담당(③)의 핵심. 잘못하면 <strong>부킹이 사라지거나 중복</strong></td></tr><tr><td>&quot;ROB 계산 방식을 바꿔줘&quot;</td><td>회계사(④)의 핵심. 선복·초과비용이 전부 틀어짐</td></tr><tr><td>&quot;충돌 시 우선순위를 바꿔줘&quot;</td><td>어느 파일을 믿을지가 바뀜</td></tr><tr><td>&quot;속도 개선해줘&quot;</td><td>눈에 안 보이는 곳에서 계산이 달라질 수 있음</td></tr><tr><td><strong>&quot;행 삽입 위치나 방식을 바꿔줘&quot;</strong></td><td>편집자(⑥)의 핵심. 따라 움직여야 할 11가지 중 하나만 빠져도 <strong>엑셀이 &quot;복구가 필요합니다&quot;를 띄우거나 수식이 엉뚱한 칸을 가리킴</strong></td></tr><tr><td><strong>&quot;다른 파일도 갱신하게 해줘&quot;</strong> (ROB·BK SHEET)</td><td>대상마다 구조가 달라서 각각 매핑을 다시 확인해야 함. <strong>정답지(사람이 손으로 옮긴 예) 없이는 추측이 됨</strong></td></tr></tbody></table></div>
+<h3 id="d3-h28">절대 이렇게 요청하지 마세요</h3>
+<div class="tw"><table><thead><tr><th>하지 말 것</th><th>이유</th></tr></thead><tbody><tr><td>&quot;엑셀 읽기를 라이브러리로 바꿔줘&quot;</td><td>인터넷 통신이 생기고 파일이 5배로 커짐. 설계 ②③이 무너짐</td></tr><tr><td>&quot;원본 값을 바로 고치게 해줘&quot;</td><td>무한 진동 재발(§5-③)</td></tr><tr><td>&quot;충돌은 그냥 알아서 처리해줘&quot;</td><td>신뢰를 잃음(설계 ⑤)</td></tr><tr><td>&quot;서버에 올려서 여러 명이 쓰게 해줘&quot;</td><td>그건 다른 제품입니다. 보안 검토부터 필요</td></tr></tbody></table></div>
+<h3 id="d3-h29">AI에게 줄 프롬프트 틀</h3>
+<pre><code>farmkogls-console 폴더의 도구를 수정해줘.
+
+[먼저 읽을 것]
+docs/03_설계_지침서.md 와 docs/04_기술_참고.md 를 먼저 읽어.
+특히 04의 §5(실제 버그 10건)와 §8(함정 12개)를 지켜줘.
+
+[요청]
+(여기에 하고 싶은 것)
+
+[반드시 지킬 것]
+- 외부 라이브러리나 인터넷 통신을 추가하지 마
+- 소스에서 읽은 원본 값을 덮어쓰지 마 (파생 필드를 써)
+- 값 충돌을 조용히 처리하지 마 (반드시 기록하고 보고해)
+
+[수정 후 검증]
+1. build.py / build_artifact.py / build_site.py 세 개가 다 통과하는지
+   (도구는 하나인데 포장이 세 가지입니다 - 하나만 고치면 나머지가 어긋납니다)
+2. test.html 과 test-prop.html 이 원본 파일로 끝까지 도는지
+3. 같은 파일을 두 번 넣었을 때 &quot;변경 0건&quot;인지
+4. 파일 순서를 뒤집어도 결과가 같은지
+5. 브라우저에서 탭·버튼·정렬·필터를 실제로 click() 해서 다 동작하는지
+   (test-ui.html)
+6. 결과 엑셀을 xlNormalLoad 로 열어 복구 없이 열리고 수식이 계산되는지
+7. 처음 쓰는 사람 경로도 밟아보기 - 등록부가 빈 상태에서 시작해서
+   PIN 입력부터 엑셀 내려받기까지
+검증 결과를 숫자로 보고해줘.</code></pre>
+<p><strong>3·4·5·6번을 빼먹지 마세요.</strong> 제가 만든 버그 11개 중 7개가 이 네 검사에서 잡혔고, <strong>5번을 안 해서 &quot;버튼이 하나도 안 눌리는&quot; 버그를 한참 놓쳤습니다.</strong> <strong>7번은 배포 스크립트가 첫 실행에서 죽고 나서 추가했습니다</strong>(§5-⑤).</p>
+<h3 id="d3-h30">수정 후 스스로 확인할 최소 4가지</h3>
+<p>코드를 못 읽어도 이건 할 수 있습니다.</p>
+<ol><li><strong>파일 갱신</strong>: 학습.xlsx + FES AGENCY를 넣고 <strong>신규 11 · 갱신 5</strong>가 나오는지</li><li>내려받은 파일을 <strong>엑셀로 열어서 &quot;복구&quot; 창이 안 뜨는지</strong>, 375행부터 새 데이터가있고 <code>H</code>·<code>Y</code>열에 숫자가 계산돼 있는지</li><li>그 파일을 다시 넣었을 때 <strong>신규 0 · 갱신 0</strong>인지 (중복 방지 확인)</li><li><strong>탭을 마우스로 하나씩 눌러보고</strong> 전부 바뀌는지</li></ol>
+<h3 id="d3-h31">도구는 하나, 포장은 셋 ⭐</h3>
+<p>여기서 헷갈리기 쉽습니다. <strong>코드는 <code>farmkogls-console/src/</code> 한 곳에만 있습니다.</strong> 거기서 세 가지 형태로 포장해 내보냅니다.</p>
+<pre><code>                    src/  (진짜 코드는 여기 하나뿐)
+                      │
+      ┌───────────────┼───────────────┐
+      │               │               │
+  build.py      build_site.py   build_artifact.py
+      │               │               │
+  파일 한 개      홈페이지        claude.ai 안에서
+  (더블클릭)     (PIN + 주소)     보는 판
+      │               │               │
+  엑셀 O          엑셀 O          엑셀 X (제약)</code></pre>
+<p><strong>src를 고치면 세 개를 다 다시 만들어야 합니다.</strong> 하나만 만들면파일판은 고쳐졌는데 홈페이지는 옛날 것이 남는 식으로 어긋납니다.</p>
+<h3 id="d3-h32">고친 걸 홈페이지에 올리기</h3>
+<pre><code>cd &quot;$([Environment]::GetFolderPath('Desktop'))\claude\farmkogls-console&quot;
+python build.py
+python build_site.py
+Copy-Item site\index.html ..\farmkogls-site\index.html -Force
+
+cd ..\farmkogls-site
+git add -A
+git commit -m &quot;수정 내용&quot;
+git push</code></pre>
+<p>push하면 1~2분 뒤 홈페이지에 자동 반영됩니다.</p>
+<blockquote><p><strong>올리기 전에 반드시</strong> <code>git status</code>로 <strong>엑셀 파일이 섞여 있지 않은지</strong> 보세요. <code>.gitignore</code>가 막고 있고 <code>deploy.ps1</code>도 검사하지만, <strong>git은 한 번 올라가면나중에 지워도 과거 기록에 남습니다.</strong> 부킹 자료는 되돌릴 수 없습니다.</p>
+<p>실제로 위험했던 적이 있습니다 — 제가 쓴 매뉴얼 <strong>예시 문장에 실제 화주명이들어가 있었고</strong>, 올리기 직전 검사에서 걸렸습니다. 코드만 조심하면 되는 게아니라 <strong>문서도 자료가 될 수 있습니다.</strong></p></blockquote>
+<hr>
+<h2 id="d3-h33">7. 비개발자에게 설명하는 대본</h2>
+<p>그대로 읽어도 됩니다.</p>
+<h3 id="d3-h34">팀장 / 경영진용 (돈 이야기)</h3>
+<blockquote><p>우리 손익은 선사와 약정한 선복을 얼마나 정확히 채우는지에서 거의 다결정됩니다. 못 채우면 그대로 손실이고, 넘기면 초과 요금이 붙습니다.</p>
+<p>문제는 지금 그걸 <strong>한눈에 볼 방법이 없다</strong>는 것이었습니다. 부킹 정보가에이전트 예보, 통합 등록부, 항차별 마감 시트 세 군데에 흩어져 있고, 값이 어긋나도 알 수가 없었습니다.</p>
+<p>이 도구는 그 파일들을 하나로 합쳐서 항차별로 &quot;약정 대비 얼마나 실렸는지&quot;를보여줍니다. 현재 데이터로 돌려보니 <strong>27개 항차가 약정을 넘겨 총 476 TEU가초과</strong>였습니다. 의도한 초과일 수도 있지만, 지금까지는 협상이나 정산에 쓸근거 자체가 없었습니다.</p>
+<p>부수적으로 기존 파일의 오류도 나왔습니다. 시트 머리글 오타 때문에 <strong>80건의 부킹이 엉뚱한 서비스로 집계</strong>되고 있었고, 통합 등록부의 중량 계산수식 9곳이 빈 셀을 참조해 <strong>중량이 0으로 나오고</strong> 있었습니다.</p>
+<p>비용은 들지 않습니다. 파일 하나이고, 설치도 서버도 없고, 데이터는회사 PC를 벗어나지 않습니다.</p></blockquote>
+<h3 id="d3-h35">동료 실무자용 (일이 어떻게 편해지나)</h3>
+<blockquote><p>하는 일은 그대로예요. 엑셀 받고, 합치고, 회신하는 것. 합치는 걸 손으로 안 한다는 것만 달라요.</p>
+<p>받은 파일을 전부 끌어다 놓으면 알아서 합쳐지고, 지난주와 뭐가 바뀌었는지 목록으로 나와요. 같은 부킹인데 파일마다 값이다르면 &quot;이 파일은 7/31, 저 파일은 7/27&quot;까지 다 찍어줍니다.</p>
+<p>같은 파일을 여러 번 넣어도 아무 일 안 생기고, 넣는 순서도 상관없어요. 잘못 넣었나 걱정 안 해도 됩니다.</p>
+<p>내보내는 엑셀은 우리가 쓰던 열 순서 그대로라서 받는 쪽에서 위화감 없어요.</p></blockquote>
+<h3 id="d3-h36">IT / 보안 담당자용</h3>
+<blockquote><p>단일 HTML 파일입니다. 설치 프로그램이 아니고, 레지스트리를 건드리지 않고, 관리자 권한이 필요 없습니다.</p>
+<p><strong>외부 통신이 없습니다.</strong> 스크립트, 폰트, 이미지 전부 파일 안에 들어 있고외부 요청을 하는 코드가 없습니다. 네트워크를 끊고도 동작합니다. 엑셀 파싱도 외부 라이브러리 없이 브라우저 내장 기능만 씁니다.</p>
+<p>데이터는 브라우저의 로컬 저장소(약 5MB)에만 남고 서버로 가지 않습니다. 백업은 사용자가 명시적으로 <code>.json</code>으로 내보내는 방식입니다.</p>
+<p>요구사항은 Edge / Chrome / Firefox 113 이상뿐입니다.</p>
+<p><strong>홈페이지 판에 대해서</strong> — GitHub Pages에 올린 정적 페이지이고, <strong>서버 쪽 코드가 없습니다.</strong> 페이지가 하는 일은 도구를 브라우저에전달하는 것뿐이고, 그 뒤로는 방문자 브라우저 안에서만 동작합니다. 업로드 받는 곳도, 데이터베이스도, 로그도 없습니다. <strong>저장소에 업무 자료를 두지 않습니다</strong> — 스프레드시트는 형상관리에서차단되어 있고 배포 스크립트가 올리기 직전 한 번 더 검사합니다.</p>
+<p>접근 제어는 <strong>4자리 PIN이며, 브라우저 쪽 검사입니다.</strong> 인증이 아니라우연한 접근을 막는 수준으로만 봐 주십시오. 그렇게 둔 근거는 <strong>공개되는 쪽에 지킬 자료가 없다</strong>는 점입니다. 자료를 올려야 하는요건이 생기면 그 시점에 실제 인증(예: Cloudflare Access의 이메일 확인)을앞단에 두는 것이 맞습니다.</p></blockquote>
+<h3 id="d3-h37">자주 나오는 질문</h3>
+<div class="tw"><table><thead><tr><th>질문</th><th>답</th></tr></thead><tbody><tr><td>&quot;AI가 만든 건데 믿을 수 있나요?&quot;</td><td>만드는 동안 조용히 틀린 답을 내던 문제 10개를 찾아 고쳤습니다. 검증은 4중으로 걸려 있고, 최종적으로 <strong>엑셀이 직접 계산한 합계와 도구의 합계가 3개 시트에서 일치</strong>하는 것까지 확인했습니다. §5 참조.</td></tr><tr><td>&quot;기존 엑셀 양식을 다 바꿔야 하나요?&quot;</td><td>아니요. 받는 양식도 보내는 양식도 그대로입니다.</td></tr><tr><td>&quot;에이전트나 선사에 뭘 요청해야 하나요?&quot;</td><td>없습니다. 상대는 바뀐 걸 모릅니다.</td></tr><tr><td>&quot;부킹 사이트랑 뭐가 다른가요?&quot;</td><td>사이트는 부킹을 <strong>받는</strong> 곳이고, 이건 사이트를 안 거치는 항로까지 포함해 <strong>전체를 합쳐서 보는</strong> 곳입니다. 대체 관계가 아닙니다.</td></tr><tr><td>&quot;틀리면 어떻게 알 수 있나요?&quot;</td><td>도구가 스스로 점검 결과를 보고합니다. 현재 데이터에서 초과 항차 27건, 파일 간 불일치 16건, 서비스 오타 5건을 찾아냈습니다.</td></tr><tr><td>&quot;담당자가 바뀌면요?&quot;</td><td>주소와 PIN, 그리고 문서 5개가 전부입니다. 관리할 서버가 없습니다.</td></tr><tr><td>&quot;여러 명이 같이 쓸 수 있나요?&quot;</td><td>도구는 모두가 같은 주소로 씁니다. 다만 <strong>등록부는 각자 브라우저에 따로 쌓입니다.</strong> 같은 등록부를 봐야 하면 <code>.json</code>을 주고받으세요. 실시간 공유는 서버가 필요한 별도 작업입니다.</td></tr><tr><td>&quot;홈페이지에 우리 자료가 올라가 있나요?&quot;</td><td>아니요. 올라간 건 <strong>빈 도구</strong>뿐입니다. 자료는 각자 파일을 넣는 순간부터 그 사람 브라우저에만 생깁니다.</td></tr></tbody></table></div>
+<hr>
+<h2 id="d3-h38">8. 최소 용어집</h2>
+<div class="tw"><table><thead><tr><th>도구 용어</th><th>업무 말로</th></tr></thead><tbody><tr><td>등록부 (register)</td><td>누적 부킹 대장</td></tr><tr><td>병합 (merge)</td><td>여러 파일을 대장에 합쳐 넣기</td></tr><tr><td>정규화 (normalize)</td><td>표기 통일 (<code>MYPKN</code> = <code>NPKL</code>)</td></tr><tr><td>키 (key)</td><td>같은 부킹인지 판단하는 기준</td></tr><tr><td>Peak TEU</td><td>최대 동시 적재량 = 실제 필요 선복</td></tr><tr><td>멱등성 (idempotent)</td><td>같은 파일을 몇 번 넣어도 결과가 같음</td></tr><tr><td>파생 필드</td><td>원본을 안 고치고 옆 칸에 계산해둔 값</td></tr><tr><td>로컬 저장소</td><td>브라우저가 이 PC에만 저장하는 공간</td></tr><tr><td>프로젝트 파일 (.json)</td><td>대장 전체 백업본</td></tr></tbody></table></div></article><article class="doc-body" id="d4"><h1 id="d4-h1">부록 — 기술 참고 (깊이 파고들 때 / AI에게 읽힐 때)</h1>
+<blockquote><p><strong>먼저 <a href="#d3">03_설계_지침서.md</a>를 읽으세요.</strong> 그쪽이 사람용입니다.</p>
+<p>이 문서는 코드를 직접 읽고 고칠 때, 또는 <strong>AI에게 수정을 맡기면서 &quot;이 문서 먼저 읽어&quot;라고 붙여줄 때</strong> 쓰는 기술 상세본입니다. 정규식·모듈 구조·바이트 수준 이야기가 나옵니다. 몰라도 도구를 쓰거나설명하는 데 아무 문제 없습니다.</p></blockquote>
+<p>&quot;무엇을 만들었나&quot;보다 <strong>&quot;왜 그렇게 만들었나&quot;와 &quot;어디서 깨졌나&quot;</strong>에 지면을 씁니다. 후자가 실제로 시간을 아껴줍니다.</p>
+<hr>
+<h2 id="d4-h2">1. 설계 전제 3가지</h2>
+<h3 id="d4-h3">1-1. 의존성 0</h3>
+<p><code>npm install</code> 하나 없습니다. 이유:</p>
+<ul><li>이 PC에는 Node도 Python도 없었습니다(PATH의 <code>python.exe</code>는 Microsoft Store 스텁이라 실행되지 않음). 담당자가 바뀌어도 동작해야 합니다.</li><li>데이터가 상업 기밀입니다. 외부로 나가는 요청이 <strong>하나도 없어야</strong> 합니다.</li><li>5년 뒤에도 열려야 합니다. CDN이 죽으면 도구가 죽는 구조는 피했습니다.</li></ul>
+<p>그래서 <code>.xlsx</code> 읽기/쓰기를 직접 구현했습니다.</p>
+<ul><li><strong>읽기</strong> — 브라우저 내장 <code>DecompressionStream('deflate-raw')</code>로 ZIP 해제 (SheetJS 약 900KB를 넣지 않아도 됨)</li><li><strong>쓰기</strong> — ZIP을 <strong>STORE(무압축)</strong> 방식으로 생성 + CRC32 직접 계산. 엑셀은 무압축 xlsx도 문제없이 엽니다.</li></ul>
+<h3 id="d4-h4">1-2. 원본을 덮어쓰지 않고 파생시킨다</h3>
+<p>소스에서 읽은 값(<code>svc1</code>)은 절대 수정하지 않고, 보정값은 별도 필드(<code>svcEff</code>)에둡니다. 한 번 원본을 덮어썼다가 <strong>무한 진동 버그</strong>를 만들었습니다(§5-8 참조).</p>
+<h3 id="d4-h5">1-3. 조용히 해결하지 않는다</h3>
+<p>값이 충돌하면 규칙대로 하나를 고르되, <strong>버린 값과 양쪽 출처를 반드시 기록</strong>합니다 (<code>Changes › Source disagreements</code>, <code>DATA QUALITY</code> 시트). 통합 도구가 사람 모르게 값을 고르기 시작하면 신뢰를 잃습니다.</p>
+<hr>
+<h2 id="d4-h6">2. 구조와 데이터 흐름</h2>
+<pre><code> 엑셀 파일 (ArrayBuffer)
+        │
+   zip.js          ZIP 해제 / 생성          7.6 KB
+        │
+   xlsx-read.js    시트 → 2차원 셀 배열      9.0 KB
+        │          (공유문자열·날짜·병합셀)
+        ├──────────────────────────────────────────────┐
+        │                                              │
+        │                              [파일 갱신 경로]  │
+        │                        xlsx-edit.js  기존 파일 정밀 편집
+        │                              │       행 삽입·참조 이동·부분 저장
+        │                        propagate.js  학습→FES BK FCST 매핑
+        │                              │
+        │                              └─▶ 갱신된 대상 파일 (새 사본)
+        ▼
+   parse.js        레이아웃 판별 →          31.5 KB
+        │          정규 레코드              ← 가장 자주 손댈 파일
+        │  ↕ normalize.js  항구·선박·거래처·TEU·주차   14.9 KB
+        ▼
+   merge.js        누적 등록부              21.0 KB
+        │          키·그룹병합·변경이력      ← 가장 어려운 파일
+        ▼
+   aggregate.js    집계 + ROB 재계산        15.0 KB
+        │
+        ├──▶ ui.js       화면              43.7 KB
+        └──▶ export.js   14시트 엑셀        16.7 KB
+                  │
+             xlsx-write.js  서식 있는 xlsx  12.2 KB</code></pre>
+<p>로드 순서가 곧 의존 순서입니다(<code>index.html</code> 하단 참조). 전역 객체 <code>FZip</code> <code>FXlsxRead</code> <code>FXlsxWrite</code> <code>FNorm</code> <code>FParse</code> <code>FMerge</code> <code>FAgg</code> <code>FExport</code> <code>FApp</code>로 노출됩니다. 모듈 시스템을 쓰지 않은 이유는 <code>file://</code>에서 ES module이 CORS로 막히기 때문입니다.</p>
+<hr>
+<h2 id="d4-h7">3. 정규 데이터 모델</h2>
+<p>모든 레이아웃이 이 한 가지 모양으로 수렴합니다. 여기가 계약(contract)입니다.</p>
+<pre><code>{
+  // 출처 (추적용)
+  srcFile, srcSheet, srcRow, srcKind, srcMtime, srcRank,
+  key,            // 병합 식별자
+  status,         // 'active' | 'cancel'
+  occ,            // B/L 없는 행의 시트 내 등장 순번
+
+  // 당사자
+  remark, customer, bkParty, partySvc, blNo,
+
+  // 1구간 / 2구간
+  leg1Vessel, leg1Voy, leg1Etd, wk,
+  leg2Vessel, leg2Voy, leg2Etd, wk2,
+  dirTs,          // 'DIR' | 'TS'
+  svc1, svc2,     // 원본이 말한 서비스
+  svcEff,         // ← 실제 사용할 서비스 (파생)
+  voyKey, voyKey2,
+
+  // 구간
+  pol, ts, pod, fpod, lane,
+
+  // 수량 (이 7개가 원천, 나머지는 계산)
+  c20dv, c20mt, c40hc, c40mt, c20fr, c40fr, cvoid,
+
+  // 파생
+  teu, boxes, vgmWt, wtPerTeu, tare, emptyRepo,
+
+  // 상업
+  item, ratePerBox, lumpsum,
+
+  // BK SHEET 전용
+  special, specialApproval, salesRep, billingNote,
+  pickupTerminal, pickupDate, bkDate, cancelDate,
+
+  // 이력
+  firstSeen, lastSeen, history[], mergedFrom[]
+}</code></pre>
+<p><strong>원칙</strong>: <code>c20dv…cvoid</code> 7개만 원천 데이터. <code>teu</code>는 항상 이 7개에서 재계산합니다 (<code>FNorm.computeTeu</code>). 원본 시트의 TEU 값은 <code>teuSheet</code>에 따로 보관해두고다르면 경고를 냅니다 — 실제로 <code>FES BK FCST</code>의 VGM 수식이 깨져 있었습니다.</p>
+<hr>
+<h2 id="d4-h8">4. 핵심 알고리즘 3개</h2>
+<h3 id="d4-h9">4-1. 레이아웃 판별 (<code>parse.js</code>)</h3>
+<p>시트 이름에 의존하지 않습니다(<code>마감</code>, <code>(0726)</code>, 오타 등으로 이름이 제각각). <strong>헤더 행을 찾아 그 내용으로 판별</strong>합니다.</p>
+<pre><code>1~40행을 훑어 각 행을 점수화
+  헤더 텍스트를 정규 필드명으로 매핑 (H_EXACT 사전 + 느슨한 패턴)
+  조건: 매칭 6개 이상 + 컨테이너 열 2개 이상 + B/L 열 존재
+  → 최고점 행이 헤더
+
+판별:
+  '1st Leg Vessel' 있음                    → masterForecast
+  'Pick Up' / 'Cancel Date' / 'Shipper' 등 → bkSheet
+  'Vessel' + 'Voy' 분리                    → agencyForecast
+  'VSL/VOY' + 'WK' 반복                    → schedule
+  'NORTHBOUND/SOUTHBOUND'                  → bsa
+  'DF Contract' + 'RATE :'                 → dfContract
+  'TOTAL(Incl. ROB)' / 'OOG(Void)'         → rob</code></pre>
+<p>열 위치가 파일마다 밀려도 견딥니다. <strong>새 양식 대응은 대부분 <code>H_EXACT</code>에 헤더 문자열 한 줄 추가로 끝납니다.</strong></p>
+<p>데이터 행 종료 조건이 의외로 까다롭습니다. 데이터 구역 안에소계·합계·<code>Cancel 정리</code>·헤더 재출력이 섞여 있습니다(<code>TOTALS_HINT_RE</code>, <code>CANCEL_SECTION_RE</code>).</p>
+<h3 id="d4-h10">4-2. 그룹 병합 (<code>merge.js</code>)</h3>
+<p>같은 부킹이 최대 3곳에 존재합니다. <strong>2개씩 순차로 합치면 순서 의존이생깁니다</strong>(§5-7). 그래서 전량을 모아 한 번에 해결합니다.</p>
+<pre><code>// 1) 키로 전부 모은다
+groups: key → [copy1, copy2, copy3]
+
+// 2) 신뢰도 순으로 정렬 (완전 결정적)
+byPrecedence =
+  레이아웃 등급 내림차순            // bkSheet 3 &gt; master/agency 2 &gt; 기타 1
+  → 파일 수정시각 내림차순          // 같으면 최근 저장분
+  → 파일명 → 시트명 → 행번호        // 그래도 같으면 이름순
+
+// 3) 필드별로 &quot;값을 가진 가장 좋은 사본&quot;에서 가져온다
+for (필드 of 텍스트+숫자) if (lead[필드] 비어있음) 뒤에서 첫 유효값
+
+// 4) 박스 수량은 세트로 이동 (7개를 쪼개면 TEU가 깨짐)
+// 5) 하나라도 cancel이면 cancel
+// 6) MATERIAL 필드가 서로 다르면 conflicts[]에 기록</code></pre>
+<p><strong>키 설계</strong>가 이 파일의 진짜 어려운 부분입니다.</p>
+<pre><code>B/L 있음  → 'B|' + 정규화B/L + '|' + 선명|항차 + '|' + POD
+B/L 없음  → 'X|' + (항차|구간|거래처|박스구성|비고해시) + '|#' + 등장순번</code></pre>
+<p><code>MT</code> / <code>FULL</code> / <code>T.B.N</code> 같은 자리표시자는 문서번호가 없습니다. <strong>등장 순번을 키에 넣은 이유</strong>: 같은 시트에 똑같이 생긴 공컨 회수 3줄이실제로는 별개 부킹입니다. 순번이 없으면 1줄로 뭉개져 물량이 사라집니다 (실제로 3건 7 TEU가 사라지고 있었습니다). 반면 순번을 시트별로만 매기므로, 같은 줄이 다른 파일에 또 나오면 양쪽 <code>#1</code>이라 정상 병합됩니다.</p>
+<h3 id="d4-h11">4-3. ROB 재계산 (<code>aggregate.js</code>)</h3>
+<p>수작업 ROB 시트를 읽는 대신 <strong>부킹에서 다시 만듭니다.</strong></p>
+<pre><code>rotation = 그 항차의 스케줄 기항순서 (없으면 서비스 기본 순서)
+
+// 각 부킹을 정확히 한 번만 적재
+for (부킹) loadIdx[부킹] = rotation에서 POL이 처음 나오는 위치
+
+// 기항지 순서대로
+for (i, 기항지 of rotation) {
+  적재 = loadIdx === i 인 부킹들
+  양하 = 하선항 === 기항지 &amp;&amp; loadIdx &lt; i &amp;&amp; 아직 안 내린 부킹들
+  선상 += 적재 − 양하
+}
+선복소요 = max(선상)          // ← 합계가 아니라 최대값
+잔여     = BSA − 선복소요</code></pre>
+<p><strong><code>loadIdx</code>가 핵심</strong>입니다. CCS·NWX 루프는 청도와 부산을 <strong>두 번</strong> 기항합니다. 항구 이름만으로 매칭하면 같은 화물을 두 번 싣습니다(§5-3).</p>
+<hr>
+<h2 id="d4-h12">5. 실제로 만난 버그와 교훈 ⭐</h2>
+<p>이 절이 이 문서의 핵심입니다. 전부 실제 발생했고, 전부 <strong>조용히 틀린 답</strong>을내놓던 종류입니다.</p>
+<h3 id="d4-h13">5-1. 병합셀이 자기 라벨을 되돌려줌</h3>
+<ul><li><strong>증상</strong>: 존재하지 않는 서비스 <code>SVCNAME</code>이 2,834 TEU를 차지.</li><li><strong>원인</strong>: <code>sh.get()</code>이 병합 영역을 해석해준다 → <code>A10:B11</code>이 병합된 <code>&quot;SVC Name :&quot;</code> 라벨에서 오른쪽 B10을 읽으면 <strong>라벨 자신</strong>이 돌아옴. <code>canonSvc(&quot;SVC Name :&quot;)</code> → <code>&quot;SVCNAME&quot;</code>.</li><li><strong>수정</strong>: 라벨과 텍스트가 같은 셀은 건너뛴다(<code>valueRightOf</code>).</li><li><strong>교훈</strong>: 병합셀을 해석해주는 편의 기능이 &quot;라벨 오른쪽 값 읽기&quot;와 충돌한다.</li></ul>
+<h3 id="d4-h14">5-2. 합계 행이 부킹으로 들어옴</h3>
+<ul><li><strong>증상</strong> : <code>한국 선적 합계 → 한국 선적 합계</code> 라는 유령 구간 287 TEU.</li><li><strong>원인</strong>: 합계 행이 데이터 구역 <strong>안</strong>에 있고, 종료 판정이 영어 키워드만 봤음.</li><li><strong>수정</strong>: <code>합계|소계|GRAND TOTAL|ACCOUNT NO|…</code> 로 확장.</li><li><strong>교훈</strong>: 한국어 업무 파일은 요약 행이 데이터 중간에 끼어 있다. 영어 키워드만보면 반드시 새어 들어온다.</li></ul>
+<h3 id="d4-h15">5-3. 순환 항로에서 화물을 두 번 실음</h3>
+<ul><li><strong>증상</strong>: <code>KMTC JEBEL ALI 2602W</code> 최대 선상 75 TEU (실제 42).</li><li><strong>원인</strong>: 적재를 항구 이름으로 버킷팅. CCS 루프는 청도·부산을 두 번 기항하므로같은 화물이 1번째와 9번째 기항에서 모두 적재됨.</li><li><strong>수정</strong>: 부킹별 <code>loadIdx</code>를 한 번만 배정, 양하는 그보다 뒤 기항에서만.</li><li><strong>검증</strong>: <code>TIGER CHENNAI 2605W</code> 최대 81 TEU = 귀사 BK SHEET Grand Total 81. ✅</li><li><strong>교훈</strong>: 항로는 그래프가 아니라 <strong>순서 있는 목록</strong>이다. 같은 노드가 재등장한다.</li></ul>
+<h3 id="d4-h16">5-4. 항차 번호 재사용</h3>
+<ul><li><strong>증상</strong>: <code>WAN HAI 522 W038</code>의 BSA가 73이어야 하는데 60으로 나옴.</li><li><strong>원인</strong>: 25년 ROB 시트와 26년 BK SHEET가 같은 <code>선명|항차</code> 키.</li><li><strong>수정</strong>: BSA 출처에 등급 부여(항차 BK SHEET 3 &gt; 스케줄 2 &gt; 과거 ROB 1).</li><li><strong>남은 한계</strong>: 근본 해결은 키에 연도를 넣는 것. 지금은 시즌별로 등록부를나누라고 매뉴얼에 명시.</li><li><strong>교훈</strong>: 업무 식별자는 대개 재사용된다. &quot;고유해 보이는 번호&quot;를 믿지 말 것.</li></ul>
+<h3 id="d4-h17">5-5. 소스에 박힌 제어문자가 모듈 하나를 통째로 죽임 ⚠️</h3>
+<ul><li><strong>증상</strong>: 번들 파일에서 <code>FXlsxWrite</code>가 <code>undefined</code>. 개별 파일 로드는 정상.</li><li><strong>원인</strong>: <code>esc()</code> 안에 <code>/[\x00-\x08…]/</code> 를 쓰려 했는데 파일에 <strong>실제 제어 바이트</strong>가들어감. <code>&lt;script src&gt;</code>로는 파싱되지만, 번들러의 텍스트 왕복을 거치면정규식 리터럴이 깨져 <strong>그 모듈만 조용히 실패</strong>.</li><li><strong>수정</strong>: 정규식을 버리고 코드포인트로 필터(<code>stripCtl</code>). 그리고 <strong><code>build.py</code>가 제어문자 포함 소스를 아예 거부</strong>하도록 방어선 추가.</li><li><strong>교훈</strong>: 가장 무서운 버그는 &quot;한 군데만 조용히 안 되는&quot; 버그다. 재발 방지를 코드가 아니라 <strong>빌드 단계</strong>에 심어야 한다. (이 방어선은 실제로 나중에 내가 낸 <code>\x01</code> 오타를 즉시 잡아냈다.)</li></ul>
+<h3 id="d4-h18">5-6. <code>\b</code>가 <code>_</code> 앞에서 작동하지 않음</h3>
+<ul><li><strong>증상</strong>: 스케줄에서 읽은 항차 <strong>전부</strong> 서비스가 빈값. 그래서 BK SHEET 헤더오타가 이겨버림.</li><li><strong>원인</strong>: <code>\bCSC\b</code>는 <code>CSC_Schedule</code>에 매칭되지 <strong>않는다</strong>. <code>_</code>가 단어문자이므로 <code>CSC</code>와 <code>_</code> 사이에 경계가 없다.</li><li><strong>수정</strong>: <code>(?:^|[^A-Z])(CSC|NWX|CCS|SKS)(?:[^A-Z]|$)</code></li><li><strong>교훈</strong>: <code>\b</code>는 <code>[A-Za-z0-9_]</code> 기준이다. 업무 라벨은 <code>_</code>를 구분자로 쓴다. 둘은 정면충돌한다.</li></ul>
+<h3 id="d4-h19">5-7. 2개씩 순차 병합 → 파일 순서에 따라 결과가 달라짐</h3>
+<ul><li><strong>증상</strong>: 파일을 정순/역순으로 넣으면 선명이 <code>X-PRESS PHOENIX</code> / <code>X-PRESS PHOEINIX</code> 로 갈림. 같은 배치를 반복 투입해도 1건이 계속 진동.</li><li><strong>원인</strong>: 빈칸을 낮은 신뢰도 사본이 먼저 채우면, 뒤에 온 높은 신뢰도 사본이 <strong>더 이상 고칠 수 없다</strong>. 어느 쪽이 먼저 오는지가 순서에 달려 있었음.</li><li><strong>수정</strong>: 쌍 병합 폐기 → <strong>그룹 전체를 모아 신뢰도 정렬 후 필드별 선택</strong>.</li><li><strong>검증</strong>: 정순·역순·섞은 순서 3가지가 <strong>레코드 지문까지 완전 동일</strong>. ✅ 9가지 배치 조합 반복 투입에서 변경 0건. ✅</li><li><strong>교훈</strong>: &quot;누적 병합&quot;을 fold로 짜면 결합법칙이 깨지기 쉽다. 전량을 모아 한 번에 정렬해 결정하면 순서 의존이 원천 제거된다.</li></ul>
+<h3 id="d4-h20">5-8. 원본을 덮어써서 무한 진동</h3>
+<ul><li><strong>증상</strong>: 같은 파일을 계속 넣는데 매번 &quot;1건 변경&quot;. <code>svc1: NWX→CCS→NWX→…</code></li><li><strong>원인</strong>: 스케줄 기준으로 <code>svc1</code>을 <strong>덮어썼음</strong>. 다음 업로드에서 원본이다시 <code>CCS</code>를 주장 → 또 보정 → 영원히 반복.</li><li><strong>수정</strong>: <code>svc1</code>은 원본 그대로 두고 <code>svcEff</code>(파생)에 보정값. 집계는 <code>svcEff</code> 사용.</li><li><strong>교훈</strong>: 멱등성(idempotence)을 지키려면 <strong>읽은 값과 계산한 값을 섞지 말 것.</strong> &quot;덮어쓰기&quot;는 언제나 진동의 씨앗이다.</li></ul>
+<h3 id="d4-h21">5-9. <code>FULL</code>을 자리표시자로 인식하지 못함</h3>
+<ul><li><strong>증상</strong>: 부킹 3건 7 TEU가 사라짐.</li><li><strong>원인</strong>: B/L 자리에 <code>FULL</code>이 8번 쓰이는데 자리표시자 목록에 없어서, 서로 다른 부킹 3건이 하나의 키로 뭉개짐.</li><li><strong>수정</strong>: 자리표시자 집합 확장(<code>MT</code> <code>FULL</code> <code>T.B.N</code> <code>TBA</code> <code>N/A</code> <code>PENDING</code> …) + 등장 순번을 키에 포함.</li><li><strong>교훈</strong>: 업무 파일의 &quot;빈칸&quot;은 진짜 빈칸이 아니라 <strong>관용어</strong>다. 실데이터에서 짧고 반복되는 값을 세어보면 금방 드러난다.</li></ul>
+<h3 id="d4-h22">5-9b. 파일 갱신 경로에서 자리표시자 B/L이 또 뭉개짐</h3>
+<ul><li><strong>증상</strong>: 1회차는 정상. 갱신된 파일에 같은 학습을 또 넣으면 <code>Empty Repo</code> 3건이첫 번째 <code>Empty Repo</code> 행으로 몰려 값이 뒤섞임.</li><li><strong>원인</strong>: <code>propagate</code>의 매칭 키를 <strong>정규화한 B/L 하나로만</strong> 잡았음. 1회차에는대상 파일에 그 행들이 없어서(전부 신규) 문제가 드러나지 않았다.</li><li><strong>수정</strong>: 자리표시자 B/L은 <code>선명|항차 + POL&gt;F.POD + 비고문</code> 복합 키로 매칭하고, <strong>대상 행을 한 번씩만 소비</strong>(같은 키가 여러 행이면 순서대로 1:1 배정). 수량은 키에서 제외 — 수량 변경이 바로 갱신의 목적이므로.</li><li><strong>교훈</strong>: 같은 함정(§5-9)이 <strong>다른 코드 경로에 그대로 재발</strong>했다. 한 곳을고쳤다고 끝이 아니다. &quot;이 식별 문제를 여기서도 풀어야 하나?&quot;를 매번 물어야 한다.</li></ul>
+<h3 id="d4-h23">5-9c. workbook.xml 수정이 저장되지 않음</h3>
+<ul><li><strong>증상</strong>: <code>_FilterDatabase</code> 정의 이름이 <code>$B$7:$AC$375</code>에서 그대로. 자동 필터범위만 늘어나고 정의 이름은 안 늘어남.</li><li><strong>원인</strong>: <code>open()</code>에서 <code>workbook.xml</code>을 <code>pkg.wbDoc</code>에 따로 파싱해두고, <code>save()</code>는 <code>pkg.docs[경로]</code>만 순회했다. <strong>같은 문서를 두 곳에서 다르게 들고 있었음.</strong></li><li><strong>수정</strong>: <code>docs['xl/workbook.xml'] = wbDoc</code> 으로 한 객체를 공유.</li><li><strong>교훈</strong>: 같은 자원을 두 이름으로 들고 있으면 한쪽 수정이 조용히 사라진다.</li></ul>
+<h3 id="d4-h24">5-11. 버튼이 하나도 안 눌리고 있었음 ⚠️⚠️</h3>
+<ul><li><strong>증상</strong>: 탭 전환, 정렬, 실행 버튼이 <strong>전부</strong> 무반응. 콘솔 오류도 없음.</li><li><strong>원인</strong>: <code>wire()</code> 안에서 <code>$('#btnLoadProj').addEventListener(...)</code> — 그런 id가 index.html에 없어서 <code>null.addEventListener</code>로 TypeError. <code>wire()</code>가 거기서중단되고, <strong>그 뒤에 등록되는 <code>document.addEventListener('click', ...)</code>가아예 붙지 않았다.</strong> 화면은 정상적으로 그려지므로 겉으로는 멀쩡해 보였다.</li><li><strong>왜 오래 못 찾았나</strong>: 검증할 때 <code>FApp.tab = 'x'; FApp.rebuild()</code>로 탭을 <strong>우회 전환</strong>했다. 사람이 실제로 클릭하는 경로를 한 번도 밟지 않았다.</li><li><strong>수정</strong>: <code>on(sel, ev, fn)</code> 헬퍼 — 요소가 없으면 그 하나만 건너뛰고 <code>console.warn</code>. 그리고 <strong>실제 <code>.click()</code>으로 전 탭·버튼·정렬·필터를 순회하는검증 단계를 추가</strong>.</li><li><strong>교훈</strong>: &gt; 렌더링 검증은 상호작용 검증이 아니다. <code>innerHTML.length &gt; 0</code>은 &gt; &quot;버튼이 눌린다&quot;를 전혀 보장하지 않는다. &gt; &gt; 그리고 초기화 코드에서 한 줄의 실패가 <strong>뒤에 오는 전부</strong>를 죽이지 않게 하라.</li></ul>
+<h3 id="d4-h25">5-10. PowerShell 5.1이 스크립트를 ANSI로 읽음</h3>
+<ul><li><strong>증상</strong>: <code>바탕 화면</code> 경로가 <code>諛뷀깢 ?붾㈃</code>로 깨져 파일을 못 찾음.</li><li><strong>수정</strong>: 스크립트에 비ASCII 리터럴을 두지 않고 <code>[Environment]::GetFolderPath('Desktop')</code>로 경로를 구성.</li><li><strong>교훈</strong>: Windows 한국어 환경 + PS 5.1에서는 <strong>스크립트 파일에 한글을 박지 말 것.</strong></li></ul>
+<hr>
+<h2 id="d4-h26">6. 개발 환경과 작업 절차</h2>
+<h3 id="d4-h27">준비</h3>
+<pre><code># Python (분석·빌드용. 완성품은 필요 없음)
+winget install --id Python.Python.3.12 --scope user
+python -m pip install openpyxl pandas</code></pre>
+<p>엑셀이 설치돼 있으면 COM으로 결과 검증이 가능합니다(아래 4단계).</p>
+<h3 id="d4-h28">수정 → 확인 사이클</h3>
+<pre><code># 1) src/*.js 수정
+
+# 2) 개발용 서버 (정적 + POST /save 수신구)
+python farmkogls-console/server.py
+
+# 3) 브라우저에서 확인
+#    http://localhost:8777/index.html      ← 실제 화면 (src를 개별 로드)
+#    http://localhost:8777/test.html       ← 분석 파이프라인 7단계
+#    http://localhost:8777/test-prop.html  ← 파일 갱신 7단계 + 멱등성
+#    http://localhost:8777/test-ui.html    ← 실제 클릭 상호작용 (필수)
+
+# 4) 단일 파일 빌드
+python farmkogls-console/build.py
+#    → ../Farmkogls_Booking_Console.html</code></pre>
+<h3 id="d4-h29">검증 5단계</h3>
+<p>이 순서로 확인해야 &quot;조용히 틀린 답&quot;을 잡습니다.</p>
+<ol><li><strong><code>test.html</code></strong> — 원본 파일 6개로 읽기→파싱→병합→집계→내보내기. 알려진 셀 값 18개 스팟체크 포함.</li><li><strong><code>test-prop.html</code></strong> — 학습→등록부 갱신 전 과정. 삽입 위치, 행 이동, 변경 내역, 보존 확인(수식·서식·그림·메모), 그리고 <strong>2회차 멱등성</strong>.</li><li><strong>멱등성·순서 무관성</strong> — 같은 배치 반복 투입 시 변경 0, 정순/역순/섞은 순서의 레코드 지문이 동일한지.</li><li><strong><code>test-ui.html</code> — 실제 클릭</strong> ⚠️ 렌더링 검증으로는 절대 못 잡습니다. iframe으로 <code>index.html</code>을 띄워 탭·실행 버튼·정렬 헤더·필터·테마를 <code>.click()</code>으로 눌러보고 상태가 실제로 바뀌는지 확인합니다. (§5-11) &gt; 주의: 새 iframe은 <code>about:blank</code> 상태에서 이미 <code>readyState=&quot;complete&quot;</code>를 &gt; 보고합니다. <code>onload</code>만 믿으면 빈 문서를 검사하게 되므로, &gt; <code>W.FApp</code>처럼 실제 페이지가 정의하는 값을 폴링해야 합니다.</li><li><strong>엑셀 COM으로 실물 검증</strong> — 최종 관문. ``<code>powershell $xl = New-Object -ComObject Excel.Application # 14번째 인자 = 1 (xlNormalLoad) : 엑셀이 조용히 &quot;복구&quot;하지 못하게 $wb = $xl.Workbooks.Open($path, 0, $true, ..., 1) </code>``</li><ul><li>분석 리포트: 4,920 TEU가 3개 시트에서 모두 일치</li><li>파일 갱신: 복구 없이 열림 / 새 행의 <code>=WEEKNUM</code>·TEU가 계산됨 / 조건부서식·메모·그림 보존 / <code>Schedule</code> 셀 차이 0 / TEU 증가분 116 = 신규 11행 합계</li></ul></ol>
+<p>브라우저에서 생성한 파일을 밖으로 꺼내려면 <code>server.py</code>의 <code>POST /save</code>를 씁니다 (인앱 브라우저가 다운로드를 막기 때문에 넣은 우회로).</p>
+<pre><code>await fetch('/save', { method:'POST',
+  headers:{'X-Filename':'OUT.xlsx'}, body: blob });</code></pre>
+<hr>
+<h2 id="d4-h30">7. 확장 방법</h2>
+<h3 id="d4-h31">새 엑셀 양식 지원</h3>
+<ol><li><code>parse.js</code>의 <code>H_EXACT</code>에 그 양식의 헤더 문자열 → 정규 필드명 추가.</li><li>판별이 필요하면 <code>classify()</code>에 조건 한 줄.</li><li>헤더 위쪽 메타(선명·BSA 등)를 읽어야 하면 <code>*Context()</code> 함수 작성.</li><li><code>test.html</code>에 스팟체크 몇 줄 추가.</li></ol>
+<p>대부분 1번만으로 끝납니다.</p>
+<h3 id="d4-h32">항구·선박·거래처 추가</h3>
+<p><code>normalize.js</code> 한 곳만 봅니다.</p>
+<ul><li><code>PORTS</code> — 정식 코드와 이름</li><li><code>PORT_ALIAS</code> — 별칭·오타 (<code>CHSHA</code>→<code>CNSHA</code> 식)</li><li><code>VESSEL_FIX</code> — 선명 오타</li><li><code>VESSEL_SVC_SEED</code> — 선박→서비스 초기값 (스케줄에서 자동 학습되므로 보조용)</li><li><code>PARTY_ALIAS</code> — 거래처 표기 통일</li></ul>
+<h3 id="d4-h33">내보낼 시트 추가</h3>
+<p><code>export.js</code>의 <code>buildWorkbook()</code>에 <code>sheets.push({...})</code> 한 덩어리.</p>
+<pre><code>sheets.push({
+  name: 'MY SHEET',
+  rows: [ H(['열1','열2']), [값, {v: 숫자, s:'dec'}] ],
+  cols: [20, 12].map(w =&gt; ({ w })),
+  freeze: 'A2', autofilter: true,
+});</code></pre>
+<p>스타일 이름: <code>hdr</code> <code>sub</code> <code>title</code> <code>date</code> <code>int</code> <code>dec</code> <code>money</code> <code>pct</code> <code>bold</code> <code>warn</code> <code>good</code> <code>wrap</code></p>
+<h3 id="d4-h34">다음에 만들 만한 것</h3>
+<ol><li><strong>운임 자동 적용</strong> — 반월 운임표 6종을 연결해 판매운임·마진을 자동 계산. 구조는 이미 파악돼 있습니다(<code>01_이해한_내용.md</code> §3).</li><li><strong>항차 키에 연도 추가</strong> — §5-4의 근본 해결.</li><li><strong>초과 선복 비용 계산</strong> — DF 계약의 구간별 초과단가를 실제 초과분에 적용.</li><li><strong>부킹 사이트 연동</strong> — plism.com에서 내려오는 양식이 있으면 <code>parse.js</code>에 레이아웃 하나 추가하는 수준으로 흡수됩니다.</li></ol>
+<hr>
+<h2 id="d4-h35">8. 손대기 전에 알아둘 함정 요약</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>함정</th><th>방어법</th></tr></thead><tbody><tr><td>1</td><td>소스에 실제 제어문자</td><td><code>build.py</code>가 거부함. 코드포인트 필터를 쓸 것</td></tr><tr><td>2</td><td><code>\b</code>와 <code>_</code></td><td>`(?:^\</td><td>[^A-Z])…` 패턴 사용</td></tr><tr><td>3</td><td>병합셀이 라벨을 되돌려줌</td><td><code>valueRightOf</code>는 라벨과 같은 텍스트를 건너뜀</td></tr><tr><td>4</td><td>순환 항로 중복 적재</td><td>부킹당 <code>loadIdx</code> 1회 배정</td></tr><tr><td>5</td><td>항차번호 연 단위 재사용</td><td>BSA 출처 등급, 시즌별 등록부 분리</td></tr><tr><td>6</td><td>순차 fold의 순서 의존</td><td>그룹 전량 정렬 후 필드별 선택</td></tr><tr><td>7</td><td>원본 덮어쓰기 → 진동</td><td>파생 필드(<code>svcEff</code>)로 분리</td></tr><tr><td>8</td><td>데이터 중간의 한글 합계 행</td><td><code>TOTALS_HINT_RE</code> 유지·확장</td></tr><tr><td>9</td><td><code>.xlsx</code> 날짜 = 1900 윤년 버그</td><td><code>serialToDate</code> / <code>dateToSerial</code> 짝으로만</td></tr><tr><td>10</td><td>PS 5.1 + 한글 경로</td><td>스크립트에 한글 금지, <code>GetFolderPath</code> 사용</td></tr><tr><td>11</td><td>localStorage 약 5MB</td><td>초과 전 경고, 프로젝트 파일 유도</td></tr><tr><td>12</td><td>화면 렌더 600행 제한</td><td>전체는 엑셀로. 제한을 늘리면 체감 속도 저하</td></tr><tr><td>13</td><td>초기화 중 한 줄 실패가 전체 이벤트를 죽임</td><td><code>on()</code> 헬퍼로 요소별 격리 + 실제 클릭 검증</td></tr><tr><td>14</td><td>렌더링만 검증하고 클릭을 안 함</td><td>검증 단계 5에 <code>.click()</code> 순회 필수</td></tr><tr><td>15</td><td>같은 문서를 두 이름으로 보유</td><td><code>docs[path]</code>와 <code>wbDoc</code>을 한 객체로 공유</td></tr><tr><td>16</td><td>행 삽입 시 따라 움직일 11가지</td><td><code>insertRows()</code> 한 곳에 모아둠. 늘리면 여기만 고칠 것</td></tr><tr><td>17</td><td>새 수식에 캐시값이 없어 빈칸으로 보임</td><td><code>calcPr fullCalcOnLoad=&quot;1&quot;</code> + <code>calcChain.xml</code> 삭제</td></tr></tbody></table></div>
+<h3 id="d4-h36">행 삽입 시 반드시 함께 옮겨야 하는 11가지</h3>
+<p><code>xlsx-edit.js insertRows()</code>가 처리합니다. 새 대상 파일을 지원할 때 이 목록을그 파일에도 적용되는지 확인하세요.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>대상</th><th>처리</th></tr></thead><tbody><tr><td>1</td><td><code>&lt;row r=&quot;&quot;&gt;</code> 행 번호</td><td>+n</td></tr><tr><td>2</td><td>각 <code>&lt;c r=&quot;&quot;&gt;</code> 셀 주소</td><td>열 유지, 행 +n</td></tr><tr><td>3</td><td>모든 수식 안의 행 참조</td><td>삽입지점 이상만 +n (문자열 리터럴 제외)</td></tr><tr><td>4</td><td>공유수식 <code>&lt;f ref=&quot;&quot;&gt;</code> 범위</td><td>+n (삽입지점을 가로지르면 분할 필요 — 현재 파일엔 없음)</td></tr><tr><td>5</td><td><code>&lt;dimension ref=&quot;&quot;&gt;</code></td><td>+n</td></tr><tr><td>6</td><td><code>&lt;autoFilter ref=&quot;&quot;&gt;</code></td><td>끝 행 +n (새 행이 필터에 포함되도록)</td></tr><tr><td>7</td><td><code>conditionalFormatting sqref</code></td><td>+n</td></tr><tr><td>8</td><td><code>mergeCell</code> / <code>dataValidation</code> / <code>hyperlink</code></td><td>+n</td></tr><tr><td>9</td><td><code>definedNames</code> (<code>_FilterDatabase</code>)</td><td>끝 행 +n</td></tr><tr><td>10</td><td>메모 <code>&lt;comment ref=&quot;&quot;&gt;</code> + VML <code>&lt;x:Row&gt;</code> (0-based)</td><td>+n</td></tr><tr><td>11</td><td>그림 앵커 <code>&lt;xdr:row&gt;</code> (0-based)</td><td>+n</td></tr><tr><td>—</td><td><code>calcChain.xml</code></td><td><strong>삭제</strong> (엑셀이 재생성)</td></tr></tbody></table></div>
+<hr>
+<h2 id="d4-h37">9. 성능 기준값</h2>
+<p>현재 데이터(1,182건 / 166항차) 기준, 참고용 상한선입니다.</p>
+<div class="tw"><table><thead><tr><th>작업</th><th>시간</th></tr></thead><tbody><tr><td>엑셀 6개 읽기+파싱+병합</td><td>약 2.5초</td></tr><tr><td>집계 (<code>FAgg.build</code>)</td><td>22 ms</td></tr><tr><td>전체 재렌더</td><td>38 ms</td></tr><tr><td>14시트 엑셀 생성 (2.4 MB)</td><td>214 ms</td></tr><tr><td>등록부 직렬화</td><td>26 ms (1.4 MB)</td></tr></tbody></table></div>
+<p>5배 규모(5,529건)로 늘려도 집계 141 ms입니다. 병목은 파싱이며, <code>CCS_ROB.xlsx</code>(35시트, 1 MB) 한 개가 약 0.6초를 씁니다.</p></article><article class="doc-body" id="d5"><h1 id="d5-h1">배포하기</h1>
+<p>이 폴더는 <strong>이미 git 저장소로 준비돼 있습니다.</strong> 커밋도 끝나 있고, GitHub 로그인(<code>inu-sudo</code>)도 완료된 상태입니다.</p>
+<h2 id="d5-h2">제일 빠른 방법 — 스크립트 한 번 실행</h2>
+<p>PowerShell을 열고 아래 한 줄을 붙여넣으세요. 저장소 생성 → 업로드 → 사이트 켜기까지 전부 자동입니다.</p>
+<pre><code>powershell -ExecutionPolicy Bypass -File &quot;$([Environment]::GetFolderPath('Desktop'))\claude\farmkogls-site\deploy.ps1&quot;</code></pre>
+<p>스크립트는 올리기 <strong>직전에 엑셀 파일이 섞여 있는지 검사</strong>하고, 하나라도 있으면 업로드를 중단합니다.</p>
+<p>아래는 위 스크립트가 대신 해주는 일을 하나씩 손으로 하는 방법입니다.</p>
+<hr>
+<h2 id="d5-h3">0. 이 폴더로 이동</h2>
+<pre><code>cd &quot;$([Environment]::GetFolderPath('Desktop'))\claude\farmkogls-site&quot;</code></pre>
+<h2 id="d5-h4">1. GitHub 로그인 (한 번만)</h2>
+<pre><code>gh auth login --hostname github.com --git-protocol https --web</code></pre>
+<ul><li><code>Login with a web browser</code> 선택</li><li>화면에 나오는 <strong>8자리 코드</strong>를 복사</li><li>Enter → 브라우저가 열리면 코드를 붙여넣고 승인</li></ul>
+<blockquote><p>GitHub 계정이 없으면 &lt;https://github.com/signup&gt; 에서 먼저 만드세요.</p></blockquote>
+<h2 id="d5-h5">2. 저장소 만들고 올리기</h2>
+<pre><code>gh repo create farmkogls-console --public --source=. --remote=origin --push</code></pre>
+<p>비공개로 두고 싶으면 <code>--public</code> 을 <code>--private</code> 으로 바꾸세요. (단, 비공개면 GitHub Pages 무료 플랜으로는 배포가 안 됩니다 — 아래 참고)</p>
+<h2 id="d5-h6">3. 사이트 켜기</h2>
+<pre><code>gh api -X POST &quot;repos/:owner/farmkogls-console/pages&quot; -f &quot;source[branch]=main&quot; -f &quot;source[path]=/&quot;</code></pre>
+<p>이 명령이 안 되면 웹에서: <strong>저장소 → Settings → Pages → Source <code>Deploy from a branch</code> → Branch <code>main</code> / <code>(root)</code> → Save</strong></p>
+<p>1~2분 뒤 아래 주소가 열립니다.</p>
+<pre><code>https://&lt;GitHub사용자명&gt;.github.io/farmkogls-console/</code></pre>
+<p>주소 확인:</p>
+<pre><code>gh api &quot;repos/:owner/farmkogls-console/pages&quot; --jq .html_url</code></pre>
+<hr>
+<h2 id="d5-h7">앞으로 내용을 고칠 때</h2>
+<pre><code>cd &quot;$([Environment]::GetFolderPath('Desktop'))\claude\farmkogls-console&quot;
+python build.py
+python build_site.py
+python build_docs.py
+Copy-Item site\index.html ..\farmkogls-site\index.html -Force
+Copy-Item site\docs.html  ..\farmkogls-site\docs.html  -Force
+
+cd ..\farmkogls-site
+git add -A
+git commit -m &quot;내용 수정&quot;
+git push</code></pre>
+<p>push하면 1~2분 뒤 사이트에 자동 반영됩니다.</p>
+<hr>
+<h2 id="d5-h8">PIN 바꾸기</h2>
+<p>PIN은 <strong><code>farmkogls-console\pin.txt</code> 파일 안에만</strong> 있습니다. 이 파일은 <strong>저장소에 올라가지 않습니다</strong>(<code>.gitignore</code>로 차단).</p>
+<pre><code>Set-Content &quot;$([Environment]::GetFolderPath('Desktop'))\claude\farmkogls-console\pin.txt&quot; &quot;1234&quot; -NoNewline</code></pre>
+<p>숫자를 바꾼 뒤 위의 &quot;내용을 고칠 때&quot; 과정을 그대로 하면 새 PIN이 적용됩니다.</p>
+<blockquote><p><strong>왜 파일로 뺐나</strong> — 처음에는 빌드 스크립트 안에 <code>PIN = &quot;....&quot;</code> 로 적혀 있었는데, 그 스크립트가 저장소에 같이 올라가면서 <strong>PIN이 공개돼 버렸습니다.</strong> 문에 비밀번호를 적어 붙여놓은 셈이었습니다. 이제 빌드할 때마다 <strong>결과물에 PIN 숫자가 들어 있으면 빌드를 거부</strong>합니다.</p></blockquote>
+<hr>
+<h2 id="d5-h9">비공개 저장소로 두고 싶다면</h2>
+<p>GitHub Pages 무료 플랜은 공개 저장소에서만 됩니다. 소스는 비공개로 두고 사이트만 공개하려면 아래 중 하나를 쓰세요 (모두 무료).</p>
+<div class="tw"><table><thead><tr><th>서비스</th><th>방법</th></tr></thead><tbody><tr><td><strong>Cloudflare Pages</strong></td><td>dash.cloudflare.com → Workers &amp; Pages → Create → Pages → Connect to Git → 이 저장소 선택 → 빌드 명령 <strong>비움</strong>, 출력 디렉터리 <strong><code>/</code></strong></td></tr><tr><td><strong>Netlify</strong></td><td>app.netlify.com → Add new site → Import an existing project → Publish directory <strong><code>/</code></strong></td></tr><tr><td><strong>Vercel</strong></td><td>vercel.com/new → 저장소 선택 → Framework <strong>Other</strong>, Output <strong><code>/</code></strong></td></tr></tbody></table></div>
+<p>셋 다 push하면 자동 재배포됩니다.</p>
+<hr>
+<h2 id="d5-h10">PIN보다 강한 잠금이 필요하면</h2>
+<p><strong>Cloudflare Access</strong> 를 사이트 앞에 걸면 이메일 인증이 붙습니다. 무료 플랜으로 <strong>50명</strong>까지 됩니다. 허용할 이메일 주소만 등록해 두면그 사람들만 들어올 수 있고, 그 경우 PIN은 없애도 됩니다.</p>
+<p>Cloudflare Pages로 배포한 다음 → Zero Trust → Access → Applications → Add an application → Self-hosted → 도메인 지정 → 정책에 이메일 목록 추가.</p></article></main>
+</div>
+<script>
+(function(){
+  var docs = [].slice.call(document.querySelectorAll('.doc-body'));
+  var tabs = [].slice.call(document.querySelectorAll('#side .doc'));
+  function show(id, push){
+    var found = false;
+    docs.forEach(function(d){
+      var on = ('#' + d.id) === id;
+      d.classList.toggle('on', on);
+      if (on) found = true;
+    });
+    if (!found){ return show('#' + docs[0].id, push); }
+    tabs.forEach(function(t){
+      var on = t.getAttribute('href') === id;
+      t.setAttribute('aria-current', on ? 'true' : 'false');
+      var toc = t.nextElementSibling;
+      if (toc && toc.classList.contains('toc')) toc.classList.toggle('on', on);
+    });
+    if (push && location.hash !== id) history.replaceState(null, '', id);
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      show(t.getAttribute('href'), true);
+    });
+  });
+  document.querySelectorAll('#side .toc a').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  show(location.hash && document.querySelector(location.hash + '.doc-body')
+       ? location.hash : '#' + docs[0].id, false);
+})();
+</script>
+</body>
+</html>

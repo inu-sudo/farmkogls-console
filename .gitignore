@@ -19,6 +19,10 @@ tool/verify.html
 farmkogls_register_*.json
 *.register.json
 
+# PIN은 절대 커밋하지 않습니다 (한 번 올라가면 이력에 영원히 남습니다)
+pin.txt
+tool/pin.txt
+
 # 잡다한 것
 .DS_Store
 Thumbs.db

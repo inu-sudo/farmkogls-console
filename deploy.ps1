@@ -106,7 +106,8 @@ Write-Host '[5/5] done' -ForegroundColor Cyan
 Write-Host ''
 Write-Host "  repo : https://github.com/$user/$repoName"
 Write-Host "  site : https://$user.github.io/$repoName/" -ForegroundColor Green
-Write-Host '  PIN  : 0821'
+Write-Host "  docs : https://$user.github.io/$repoName/docs.html"
+Write-Host '  PIN  : see farmkogls-console\pin.txt (never committed)'
 Write-Host ''
 Write-Host '  The first deploy takes 1-2 minutes to go live.'
 Write-Host ''
