@@ -8,11 +8,13 @@ This page is reachable WITHOUT the PIN, so it must never contain the PIN.
 build() asserts that before writing.
 """
 import io
+import json
 import os
 import re
 import sys
 
-from pinutil import assert_absent, load_pin
+from pinutil import (DOCS_SALT, ITERATIONS, assert_absent, encrypt,
+                     load_admin_pin, load_pin)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.join(ROOT, "site")
@@ -241,6 +243,10 @@ CSS = """
   --line:#e2ddd3;--accent:#0f5c4a;--accent-soft:#e6f0ec;--code-bg:#efece5;--mark:#b45309}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
   font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%}
+body.locked{overflow:hidden}
+.gate-back{margin-top:9px!important}
+.gate-back a{color:var(--g-ink-2);text-decoration:none;font-size:11.5px}
+.gate-back a:hover{text-decoration:underline}
 a{color:var(--accent)}
 .wrap{display:grid;grid-template-columns:270px minmax(0,1fr);gap:0;
   max-width:1240px;margin:0 auto;min-height:100vh}
@@ -308,8 +314,195 @@ td code{font-size:.86em}
 }
 """
 
-JS = """
+GATE_HTML = """
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="gate-field" aria-hidden="true">
+    <svg class="gate-rot" viewBox="0 0 1200 300" preserveAspectRatio="none" focusable="false">
+      <path d="M0 210 C 180 210, 220 120, 400 120 S 620 60, 800 60 S 1040 150, 1200 150"
+            fill="none" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke"/>
+      <path d="M0 250 C 220 250, 260 180, 470 180 S 700 130, 900 130 S 1080 200, 1200 200"
+            fill="none" stroke="currentColor" stroke-width="1" opacity=".5"
+            vector-effect="non-scaling-stroke"/>
+      <g class="gate-calls">
+        <circle cx="0" cy="210" r="3.5"/><circle cx="400" cy="120" r="3.5"/>
+        <circle cx="800" cy="60" r="3.5"/><circle cx="1200" cy="150" r="3.5"/>
+      </g>
+    </svg>
+  </div>
+
+  <section class="gate-card">
+    <div class="gate-loops" aria-hidden="true">
+      <i data-svc="CSC"></i><i data-svc="NWX"></i><i data-svc="CCS"></i><i data-svc="SKS"></i>
+    </div>
+
+    <header class="gate-head">
+      <p class="gate-eyebrow">FARMKOGLS &middot; 팜코지엘에스</p>
+      <h1 id="gate-title">문서 &mdash; 관리자 전용</h1>
+      <p class="gate-sub">
+        사용설명서 &middot; 설계 지침서 &middot; 기술 참고 &middot; 배포 안내
+        <span>관리자 PIN이 필요합니다</span>
+      </p>
+    </header>
+
+    <form class="gate-form" id="gate-form" novalidate>
+      <label class="gate-label" for="pin-proxy">관리자 PIN 4자리</label>
+      <div class="gate-cells" id="gate-cells">
+        <span class="cell" data-i="0"></span><span class="cell" data-i="1"></span>
+        <span class="cell" data-i="2"></span><span class="cell" data-i="3"></span>
+      </div>
+      <input id="pin-proxy" class="gate-proxy" type="text" inputmode="numeric"
+             autocomplete="off" autocapitalize="off" spellcheck="false"
+             maxlength="4" aria-describedby="gate-msg" aria-label="관리자 PIN 4자리 입력">
+      <p class="gate-msg" id="gate-msg" role="status" aria-live="polite">숫자 4자리를 입력하세요</p>
+      <div class="gate-pad" id="gate-pad">
+        <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button>
+        <button type="button" data-k="3">3</button><button type="button" data-k="4">4</button>
+        <button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+        <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button>
+        <button type="button" data-k="9">9</button>
+        <button type="button" data-k="clear" class="wide">지우기</button>
+        <button type="button" data-k="0">0</button>
+        <button type="button" data-k="back" aria-label="한 자 지우기">&#9003;</button>
+      </div>
+    </form>
+
+    <footer class="gate-foot">
+      <p>문서 본문은 PIN으로 암호화되어 있습니다. 올바른 번호를 넣어야 열립니다.</p>
+      <p class="gate-back"><a href="./">&larr; 도구로 돌아가기</a></p>
+    </footer>
+  </section>
+</div>
+"""
+
+GATE_JS = """
 (function(){
+  'use strict';
+  var SALT = '@@SALT@@', ITER = @@ITER@@, TAG = '@@TAG@@', DATA = '@@DATA@@', LEN = 4;
+  var gate = document.getElementById('gate');
+  var cells = [].slice.call(document.querySelectorAll('#gate-cells .cell'));
+  var proxy = document.getElementById('pin-proxy');
+  var msg = document.getElementById('gate-msg');
+  var busy = false, wrong = 0;
+
+  function digits(){ return (proxy.value||'').replace(/\\D/g,'').slice(0,LEN); }
+  function paint(){
+    var d = digits();
+    cells.forEach(function(c,i){
+      var had = c.classList.contains('filled'), has = i < d.length;
+      c.textContent = has ? '\\u2022' : '';
+      c.classList.toggle('filled', has);
+      c.classList.toggle('active', i === d.length && !has);
+      if (has && !had){ c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+    });
+  }
+  function b64(s){
+    var raw = atob(s), out = new Uint8Array(raw.length);
+    for (var i=0;i<raw.length;i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function hex(s){
+    var out = new Uint8Array(s.length/2);
+    for (var i=0;i<out.length;i++) out[i] = parseInt(s.substr(i*2,2),16);
+    return out;
+  }
+  async function deriveKey(pin){
+    var enc = new TextEncoder();
+    var km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
+    var bits = await crypto.subtle.deriveBits(
+      {name:'PBKDF2', salt: enc.encode(SALT), iterations: ITER, hash:'SHA-256'}, km, 256);
+    return new Uint8Array(bits);
+  }
+  async function stream(key, n){
+    var out = new Uint8Array(Math.ceil(n/32)*32);
+    for (var i=0, ctr=0; i<out.length; i+=32, ctr++){
+      var buf = new Uint8Array(key.length + 8);
+      buf.set(key, 0);
+      new DataView(buf.buffer).setUint32(key.length + 4, ctr);
+      out.set(new Uint8Array(await crypto.subtle.digest('SHA-256', buf)), i);
+    }
+    return out.subarray(0, n);
+  }
+  async function unlock(pin){
+    var key = await deriveKey(pin);
+    var ct = b64(DATA);
+    var hk = await crypto.subtle.importKey('raw', key, {name:'HMAC', hash:'SHA-256'},
+                                           false, ['verify']);
+    if (!(await crypto.subtle.verify('HMAC', hk, hex(TAG), ct))) return null;
+    var ks = await stream(key, ct.length), out = new Uint8Array(ct.length);
+    for (var i=0;i<ct.length;i++) out[i] = ct[i] ^ ks[i];
+    return new TextDecoder().decode(out);
+  }
+  async function check(){
+    var d = digits();
+    if (d.length < LEN || busy) return;
+    busy = true;
+    msg.textContent = '\\uD655\\uC778\\uD558\\uB294 \\uC911\\u2026';
+    var text = null;
+    try { text = await unlock(d); } catch (e) { text = null; }
+    if (text){
+      gate.classList.remove('bad'); gate.classList.add('ok');
+      msg.textContent = '\\uD655\\uC778\\uB418\\uC5C8\\uC2B5\\uB2C8\\uB2E4. \\uC5EC\\uB294 \\uC911\\u2026';
+      var payload = JSON.parse(text);
+      document.querySelector('#side nav').innerHTML = payload.nav;
+      document.getElementById('main').innerHTML = payload.body;
+      gate.classList.add('leaving');
+      setTimeout(function(){ gate.remove(); document.body.classList.remove('locked'); }, 320);
+      window.initDocs();
+      return;
+    }
+    wrong += 1; busy = false;
+    gate.classList.remove('ok'); gate.classList.add('bad');
+    msg.textContent = 'PIN\\uC774 \\uB9DE\\uC9C0 \\uC54A\\uC2B5\\uB2C8\\uB2E4.';
+    setTimeout(function(){
+      proxy.value = ''; paint(); gate.classList.remove('bad');
+      msg.textContent = '\\uC22B\\uC790 4\\uC790\\uB9AC\\uB97C \\uC785\\uB825\\uD558\\uC138\\uC694';
+      focusProxy();
+    }, 620);
+  }
+  function sync(){
+    var d = digits();
+    if (proxy.value !== d) proxy.value = d;
+    paint();
+    if (d.length === LEN) check();
+  }
+  function focusProxy(){
+    try { proxy.focus({preventScroll:true}); } catch(e){ proxy.focus(); }
+  }
+  proxy.addEventListener('input', sync);
+  proxy.addEventListener('blur', function(){
+    if (document.getElementById('gate')) setTimeout(function(){
+      if (document.getElementById('gate')) focusProxy();
+    }, 40);
+  });
+  document.getElementById('gate-form').addEventListener('submit', function(e){
+    e.preventDefault(); check();
+  });
+  document.getElementById('gate-pad').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-k]');
+    if (!b) return;
+    var k = b.dataset.k;
+    if (k === 'clear') proxy.value = '';
+    else if (k === 'back') proxy.value = digits().slice(0,-1);
+    else if (digits().length < LEN) proxy.value = digits() + k;
+    sync(); focusProxy();
+  });
+  document.addEventListener('keydown', function(e){
+    if (!document.getElementById('gate')) return;
+    if (e.key === 'Enter'){ e.preventDefault(); check(); return; }
+    if (e.target === proxy) return;
+    if (/^\\d$/.test(e.key)){
+      if (digits().length < LEN) proxy.value = digits() + e.key;
+      sync();
+    } else if (e.key === 'Backspace'){
+      proxy.value = digits().slice(0,-1); sync();
+    }
+  });
+  paint(); focusProxy();
+})();
+"""
+
+JS = """
+window.initDocs = function(){
   var docs = [].slice.call(document.querySelectorAll('.doc-body'));
   var tabs = [].slice.call(document.querySelectorAll('#side .doc'));
   function show(id, push){
@@ -345,7 +538,7 @@ JS = """
   });
   show(location.hash && document.querySelector(location.hash + '.doc-body')
        ? location.hash : '#' + docs[0].id, false);
-})();
+};
 """
 
 
@@ -366,6 +559,21 @@ def main():
             '<a class="doc" href="#%s">%s<span>%s</span></a>'
             '<div class="toc">%s</div>' % (doc_id, esc(label), esc(blurb), toc))
 
+    # The documents are the thing being protected, so they cannot be sitting in
+    # the markup for "view source" to read. Ship ciphertext; the admin PIN is
+    # the decryption key, so a wrong PIN yields nothing rather than being told
+    # "no" by a check it could simply be edited out of.
+    admin_pin = load_admin_pin()
+    payload = json.dumps({"nav": "".join(nav), "body": "".join(bodies)},
+                         ensure_ascii=False)
+    data, tag = encrypt(admin_pin, DOCS_SALT, payload)
+
+    gate_js = (GATE_JS
+               .replace("@@SALT@@", DOCS_SALT)
+               .replace("@@ITER@@", str(ITERATIONS))
+               .replace("@@TAG@@", tag)
+               .replace("@@DATA@@", data))
+
     # NOTE: %-formatting is not usable here — the CSS is full of "100%".
     template = """<!doctype html>
 <html lang="ko">
@@ -376,9 +584,11 @@ def main():
 <meta name="color-scheme" content="light dark">
 <title>Farmkogls Booking Console - 문서</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<style>@@GATECSS@@</style>
 <style>@@CSS@@</style>
 </head>
-<body>
+<body class="locked">
+@@GATE@@
 <div class="wrap">
 <aside id="side">
   <a class="brand" href="./"><small>Farmkogls &middot; 팜코지엘에스</small>Booking Console 문서</a>
@@ -387,30 +597,37 @@ def main():
     <a href="@@URL@@">@@URL@@</a>
     <p>PIN 4자리를 입력하면 도구가 열립니다.<br>번호는 담당자에게 확인하세요.</p>
   </div>
-  <nav>@@NAV@@</nav>
+  <nav></nav>
 </aside>
-<main id="main">@@BODY@@</main>
+<main id="main"></main>
 </div>
 <script>@@JS@@</script>
+<script>@@GATEJS@@</script>
 </body>
 </html>
 """
     page = (template
+            .replace("@@GATECSS@@", read("hosted/gate.css"))
             .replace("@@CSS@@", CSS)
+            .replace("@@GATE@@", GATE_HTML)
             .replace("@@URL@@", SITE_URL)
-            .replace("@@NAV@@", "".join(nav))
-            .replace("@@BODY@@", "".join(bodies))
-            .replace("@@JS@@", JS))
+            .replace("@@JS@@", JS)
+            .replace("@@GATEJS@@", gate_js))
 
-    # this page is served without the gate, so it must never spell out the PIN
+    # neither PIN may be spelled out, and none of the prose may survive in clear
     assert_absent(load_pin(), page, "site/docs.html")
+    assert_absent(admin_pin, page, "site/docs.html")
+    for probe in ("팜코지엘에스의 업무", "부킹 담당자", "Peak TEU", "WEEKNUM"):
+        if probe in page:
+            raise SystemExit("document text %r survived unencrypted" % probe)
 
     if not os.path.isdir(SITE):
         os.makedirs(SITE)
     out = os.path.join(SITE, "docs.html")
     with io.open(out, "w", encoding="utf-8") as fh:
         fh.write(page)
-    print("built %s  (%.0f KB)" % (out, os.path.getsize(out) / 1024.0))
+    print("built %s  (%.0f KB, %d docs encrypted)"
+          % (out, os.path.getsize(out) / 1024.0, len(DOCS)))
     return 0
 
 

@@ -1,9 +1,10 @@
 /* ============================================================================
    gate.js — PIN gate for the hosted build, plus the "download the tool" path.
 
-   The PIN is checked in the page, so it is a light lock between people who
-   already have the link — not a security boundary. The gate says so out loud
-   rather than implying more than it delivers.
+   This gate only checks whether the PIN is right: what it guards is an empty
+   tool, since booking data never leaves the visitor's own browser. The docs
+   page needs more than that — the documents themselves are the asset — so it
+   encrypts its content with its own admin PIN instead. See build_docs.py.
    ========================================================================= */
 (function () {
   'use strict';

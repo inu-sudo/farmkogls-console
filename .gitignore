@@ -20,8 +20,11 @@ farmkogls_register_*.json
 *.register.json
 
 # PIN은 절대 커밋하지 않습니다 (한 번 올라가면 이력에 영원히 남습니다)
+# pin_admin.txt는 문서 암호화 열쇠라 더 중요합니다
 pin.txt
+pin_admin.txt
 tool/pin.txt
+tool/pin_admin.txt
 
 # 잡다한 것
 .DS_Store

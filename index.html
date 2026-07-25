@@ -636,11 +636,6 @@ progress { width: 200px; height: 6px; }
         올린 엑셀은 이 브라우저 안에서만 열립니다. 서버로 전송되지 않습니다.
       </p>
       <p class="gate-docs"><a href="docs.html">사용설명서 &middot; 설계 지침서 &middot; 배포 안내 &rarr;</a></p>
-      <p class="gate-caveat">
-        PIN은 링크를 아는 사람 사이의 <b>가벼운 잠금</b>입니다.
-        페이지 안에서 확인하므로 마음먹으면 우회할 수 있습니다 —
-        기밀 자료의 실제 보호 수단으로 삼지 마세요.
-      </p>
     </footer>
   </section>
 </div>
@@ -5839,9 +5834,10 @@ progress { width: 200px; height: 6px; }
 /* ============================================================================
    gate.js — PIN gate for the hosted build, plus the "download the tool" path.
 
-   The PIN is checked in the page, so it is a light lock between people who
-   already have the link — not a security boundary. The gate says so out loud
-   rather than implying more than it delivers.
+   This gate only checks whether the PIN is right: what it guards is an empty
+   tool, since booking data never leaves the visitor's own browser. The docs
+   page needs more than that — the documents themselves are the asset — so it
+   encrypts its content with its own admin PIN instead. See build_docs.py.
    ========================================================================= */
 (function () {
   'use strict';
