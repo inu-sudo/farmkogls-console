@@ -1,0 +1,27 @@
+# ============================================================================
+# 실제 업무 데이터는 절대 커밋하지 않습니다.
+# 저장소가 공개든 비공개든, 부킹 자료가 git 이력에 한 번 들어가면
+# 나중에 파일을 지워도 과거 커밋에 남습니다.
+# ============================================================================
+*.xlsx
+*.xlsm
+*.xls
+*.csv
+tool/testdata/
+tool/out/
+tool/site/
+tool/bundle.html
+tool/hosted-preview.html
+tool/site-preview.html
+tool/verify.html
+
+# 등록부 백업(프로젝트 파일)에도 부킹 내용이 들어 있습니다
+farmkogls_register_*.json
+*.register.json
+
+# 잡다한 것
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.pyc

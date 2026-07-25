@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>UI 상호작용 검증 (실제 클릭)</title>
+<style>
+  body { font: 12px/1.55 ui-monospace, Consolas, monospace; background:#0f1115; color:#d7dce5; padding:16px; }
+  pre { white-space: pre-wrap; }
+  iframe { width: 1280px; height: 420px; border: 1px solid #333a47; background: #fff; }
+  .ok { color:#5ddba0 } .bad { color:#ff7b72; font-weight:700 }
+</style>
+</head>
+<body>
+<h3>UI 상호작용 검증 — 렌더링이 아니라 <em>실제 클릭</em>을 확인합니다</h3>
+<p style="color:#8a919e">
+  이 검사가 없어서 "버튼이 하나도 안 눌리는" 버그를 한참 놓쳤습니다.
+  <code>wire()</code> 안의 한 줄이 실패하면 그 뒤 모든 클릭 기능이 죽는데,
+  화면은 정상으로 보입니다. (docs/04 §5-11)
+</p>
+<pre id="out">실행 중…</pre>
+<iframe id="app" src="index.html"></iframe>
+
+<script>
+const L = [];
+const log = (s) => L.push(s);
+const flush = () => { document.getElementById('out').textContent = L.join('\n'); };
+let fails = 0;
+function check(name, cond, detail) {
+  if (cond) log(`  OK    ${name}${detail ? '  ' + detail : ''}`);
+  else { fails++; log(`  FAIL  ${name}${detail ? '  ' + detail : ''}`); }
+}
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function main() {
+  const fr = document.getElementById('app');
+  /* A brand-new iframe still holds about:blank, which already reports
+     readyState "complete" — so waiting on that races. Poll for a sentinel the
+     real page defines instead. */
+  let W = null, D = null;
+  for (let i = 0; i < 100; i++) {
+    W = fr.contentWindow; D = fr.contentDocument;
+    if (W && D && D.readyState === 'complete' &&
+        W.location.pathname.indexOf('index.html') >= 0 &&
+        typeof W.FApp !== 'undefined') break;
+    await wait(100);
+  }
+  await wait(200);
+  if (typeof W.FApp === 'undefined') {
+    log(`  iframe 로드 실패: url=${W && W.location.href} readyState=${D && D.readyState}`);
+  }
+
+  log('=== 1. 모듈 로드 ===');
+  const mods = ['FZip','FXlsxRead','FXlsxWrite','FXlsxEdit','FNorm','FProp','FParse','FMerge','FAgg','FExport','FApp'];
+  const missing = mods.filter(m => typeof W[m] === 'undefined');
+  check('전 모듈 로드', missing.length === 0, missing.length ? '누락: ' + missing.join(',') : '');
+
+  log('\n=== 2. wire() 가 끝까지 실행됐는가 (클릭 핸들러 등록 여부) ===');
+  // 탭 버튼을 실제로 클릭해서 상태가 바뀌는지 = document click 핸들러 생존 확인
+  W.localStorage.clear();
+  const tabBtn = D.querySelector('[data-tab="overview"]');
+  check('탭 버튼 존재', !!tabBtn);
+  if (tabBtn) {
+    const before = W.FApp.tab;
+    tabBtn.click(); await wait(120);
+    check('탭 클릭이 상태를 바꿈', W.FApp.tab === 'overview', `${before} → ${W.FApp.tab}`);
+  }
+
+  log('\n=== 3. 파일 드롭 후 전 탭 클릭 순회 ===');
+  const mk = async (n) => { const r = await fetch('testdata/' + n); const b = await r.blob();
+    return new W.File([b], n, { lastModified: Date.parse(r.headers.get('last-modified')||'')||0 }); };
+  await W.FApp.ingestFiles([await mk('HAKSEUP.xlsx'), await mk('FES_AGENCY.xlsx')]);
+  await wait(200);
+  check('입력 파일 감지', !!W.FApp.prop.agency, W.FApp.prop.agency?.name);
+  check('대상 파일 감지', !!W.FApp.prop.target, W.FApp.prop.target?.name);
+
+  for (const t of ['propagate','overview','voyages','rob','bookings','changes','reference']) {
+    const b = D.querySelector(`[data-tab="${t}"]`);
+    if (!b) { check(`탭 ${t}`, false, '버튼 없음'); continue; }
+    b.click(); await wait(90);
+    const len = D.getElementById('view').innerHTML.length;
+    check(`탭 ${t.padEnd(10)}`, W.FApp.tab === t && len > 400, `${len} chars`);
+  }
+
+  log('\n=== 4. 파일 갱신 버튼 (실제 클릭) ===');
+  D.querySelector('[data-tab="propagate"]').click(); await wait(120);
+  const runBtn = D.getElementById('btnProp');
+  check('실행 버튼 존재', !!runBtn);
+  if (runBtn) {
+    runBtn.click();
+    for (let i = 0; i < 60 && !W.FApp.prop.report && !W.FApp.prop.running === false; i++) await wait(100);
+    await wait(1500);
+    const r = W.FApp.prop.report;
+    check('갱신 실행됨', !!r);
+    if (r) {
+      check('신규 11건', r.inserted === 11, `실제 ${r.inserted}`);
+      check('갱신 5건', r.updated === 5, `실제 ${r.updated}`);
+      check('삽입 위치 375행', r.insertAt === 375, `실제 ${r.insertAt}`);
+      check('결과 파일 생성', !!W.FApp.prop.blob, (W.FApp.prop.blob?.size || 0) + ' bytes');
+    }
+    await wait(200);
+    check('다운로드 버튼 등장', !!D.getElementById('btnPropDl'));
+  }
+
+  log('\n=== 5. 정렬 · 필터 · 테마 (실제 클릭) ===');
+  D.querySelector('[data-tab="voyages"]').click(); await wait(150);
+  const th = D.querySelector('th[data-sort]');
+  if (th) {
+    const b4 = JSON.stringify(W.FApp.sort.voyages);
+    th.click(); await wait(120);
+    check('열 제목 클릭 → 정렬 변경', JSON.stringify(W.FApp.sort.voyages) !== b4,
+      `${b4} → ${JSON.stringify(W.FApp.sort.voyages)}`);
+  } else check('정렬 헤더 존재', false);
+
+  const sel = D.querySelector('select[data-f="svc"]');
+  if (sel) {
+    sel.value = 'CCS';
+    sel.dispatchEvent(new W.Event('change', { bubbles: true }));
+    await wait(150);
+    check('서비스 필터 적용', W.FApp.filters.svc === 'CCS', 'svc=' + W.FApp.filters.svc);
+    const rst = D.getElementById('btnClearF');
+    if (rst) { rst.click(); await wait(120); check('필터 리셋', W.FApp.filters.svc === ''); }
+  } else check('필터 셀렉트 존재', false);
+
+  const thm = D.getElementById('btnTheme');
+  if (thm) {
+    thm.click(); await wait(80);
+    check('테마 토글', D.documentElement.getAttribute('data-theme') === 'dark',
+      'data-theme=' + D.documentElement.getAttribute('data-theme'));
+    thm.click(); thm.click(); await wait(60);
+  } else check('테마 버튼 존재', false);
+
+  log('\n=== 6. 하단 버튼 존재 확인 (누르면 파일이 내려가므로 존재만) ===');
+  ['btnExport','btnSaveProj','btnClear','btnPick'].forEach(id =>
+    check(`#${id}`, !!D.getElementById(id)));
+
+  log('\n=== 7. 콘솔 경고 (없는 요소를 건너뛴 흔적) ===');
+  log('  브라우저 콘솔에서 "[ui] 요소를 찾을 수 없어" 경고를 확인하세요.');
+
+  log(`\n${fails === 0 ? '전체 통과 ✔' : fails + '건 실패 ✘'}`);
+  flush();
+}
+main().catch(e => { log('\nFATAL: ' + e.stack); flush(); });
+</script>
+</body>
+</html>

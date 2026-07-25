@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>propagate 검증</title>
+<style>
+  body { font: 12px/1.55 ui-monospace, Consolas, monospace; background:#0f1115; color:#d7dce5; padding:16px; }
+  pre { white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<pre id="out">실행 중…</pre>
+<script src="src/zip.js"></script>
+<script src="src/xlsx-read.js"></script>
+<script src="src/xlsx-edit.js"></script>
+<script src="src/normalize.js"></script>
+<script src="src/propagate.js"></script>
+<script>
+const L = [];
+const log = (...a) => L.push(a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' '));
+const hd = (s) => L.push('\n=== ' + s + ' ===');
+
+async function buf(n) { const r = await fetch('testdata/' + n); return await r.arrayBuffer(); }
+
+async function main() {
+  hd('STAGE 1 — 학습.xlsx 파싱');
+  const agencyBytes = await buf('HAKSEUP.xlsx');
+  const targetBytes = await buf('FES_AGENCY.xlsx');
+  const awb = await FXlsxRead.readWorkbook(agencyBytes, '학습.xlsx');
+  const { rows, sheets } = FProp.readAgency(awb);
+  sheets.forEach(s => log(`  [${s.svc}] ${s.sheet} → ${s.rows}행`));
+  log(`  총 ${rows.length}행`);
+  log('  ' + 'SVC'.padEnd(5) + 'DIR/TS'.padEnd(7) + 'VSL+VOY'.padEnd(30) + 'ETD'.padEnd(12) +
+      'POL'.padEnd(7) + 'POD'.padEnd(10) + 'F.POD'.padEnd(8) + 'BOXES'.padEnd(18) + 'B/L');
+  rows.forEach(r => log('  ' + r.svc.padEnd(5) + r.dirTs.padEnd(7) + r.vslVoy.padEnd(30) +
+      String(FNorm.isoDate(r.etd) || '-').padEnd(12) + r.pol.padEnd(7) + (r.pod||'-').padEnd(10) +
+      (r.fpod||'-').padEnd(8) + r.boxes.join('/').padEnd(18) + String(r.bl).replace(/\n/g,' / ').slice(0,44)));
+
+  hd('STAGE 2 — 등록부 구조 파악');
+  const pkg0 = await FXlsxEdit.open(targetBytes);
+  const sv = FProp.surveyRegister(pkg0);
+  log(`  헤더행=${sv.hdr}  마지막 데이터행=${sv.lastData}  CANCEL LIST=${sv.cancelRow}  활성끝=${sv.activeEnd}`);
+  log(`  B/L 색인 ${Object.keys(sv.index).length}건`);
+
+  hd('STAGE 3 — propagate 실행');
+  const t0 = performance.now();
+  const { blob, report } = await FProp.propagate(agencyBytes, targetBytes,
+    { agencyName: '학습.xlsx', targetName: 'FES AGENCY BOOKING FORECAST 학습.xlsx' });
+  log(`  ${Math.round(performance.now()-t0)}ms  결과 ${blob.size.toLocaleString()} bytes`);
+  log(`  파싱 ${report.parsed} · 신규삽입 ${report.inserted} · 갱신 ${report.updated} · 변화없음 ${report.unchanged}`);
+  log(`  삽입 위치: ${report.insertAt}행부터`);
+  if (report.rowsShifted) log(`  행 이동: ${report.rowsShifted.from}행 이하 +${report.rowsShifted.by}` +
+      `  CANCEL LIST → ${report.rowsShifted.cancelListMovedTo}행`);
+  log('\n  변경 내역:');
+  report.changes.forEach(c => {
+    if (c.kind === 'inserted') log(`    +행${c.row} [${c.svc}] ${String(c.bl).replace(/\n/g,' / ').slice(0,40)}  TEU=${c.teu}  (${c.src})`);
+    else log(`    ~행${c.row} [${c.svc}] ${String(c.bl).replace(/\n/g,' / ').slice(0,40)}  (${c.src})\n` +
+             c.diffs.map(d => `        ${d.col}: ${JSON.stringify(d.from)} → ${JSON.stringify(d.to)}`).join('\n'));
+  });
+  log('\n  안내:');
+  report.notes.forEach(n => log('    · ' + n));
+
+  hd('STAGE 4 — 결과 파일 되읽기 검증');
+  const back = await FXlsxRead.readWorkbook(await blob.arrayBuffer(), 'out.xlsx');
+  log(`  시트: ${back.sheets.map(s => s.name + '(' + s.nrows + ')').join(', ')}`);
+  const bs = back.byName['FES BK FCST'];
+  log(`  FES BK FCST: ${bs.nrows}행 (원본 400행 + 삽입 ${report.inserted} = ${400+report.inserted})`);
+  const COLS = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC'];
+  const ci = (s) => { let n=0; for (const ch of s) n = n*26 + (ch.charCodeAt(0)-64); return n; };
+  const show = (r) => COLS.map(c => {
+    const v = bs.get(r, ci(c));
+    if (v instanceof Date) return c+'='+FNorm.isoDate(v);
+    return (v===null||v===undefined||v==='') ? null : c+'='+String(v).replace(/\n/g,'/').slice(0,26);
+  }).filter(Boolean).join(' ');
+  log('\n  -- 삽입된 행 (처음 3개) --');
+  for (let i = 0; i < Math.min(3, report.inserted); i++) log(`  r${report.insertAt+i}  ${show(report.insertAt+i)}`);
+  log('\n  -- 삽입 직전 행 (원본 마지막 데이터) --');
+  log(`  r${sv.lastData}  ${show(sv.lastData)}`);
+  log('\n  -- 밀려난 CANCEL LIST 주변 --');
+  const cm = report.rowsShifted ? report.rowsShifted.cancelListMovedTo : sv.cancelRow;
+  for (let r = cm - 1; r <= cm + 2; r++) log(`  r${r}  ${show(r) || '(빈 행)'}`);
+
+  hd('STAGE 5 — 갱신된 기존 행 확인');
+  report.changes.filter(c => c.kind === 'updated').forEach(c => {
+    const nr = c.row >= report.insertAt ? c.row + report.inserted : c.row;
+    log(`  원본 r${c.row} → 결과 r${nr}`);
+    log(`    ${show(nr)}`);
+  });
+
+  hd('STAGE 6 — 보존 확인 (수식·서식·부가 파트)');
+  const zip = await FZip.readZip(await blob.arrayBuffer());
+  const names = [...zip.keys()].sort();
+  log(`  패키지 파트 ${names.length}개`);
+  ['xl/styles.xml','xl/media/image1.png','xl/comments1.xml','xl/drawings/drawing1.xml',
+   'xl/drawings/vmlDrawing1.vml','xl/printerSettings/printerSettings2.bin',
+   'xl/webextensions/webextension1.xml','xl/calcChain.xml'].forEach(p =>
+    log(`    ${p.padEnd(46)} ${zip.has(p) ? zip.get(p).length.toLocaleString()+' bytes' : '없음 (calcChain은 의도적 삭제)'}`));
+  const sxml = new TextDecoder().decode(zip.get('xl/worksheets/sheet2.xml'));
+  log(`  sheet2.xml: ${sxml.length.toLocaleString()} chars`);
+  log(`  dimension: ${(sxml.match(/<dimension ref="([^"]+)"/)||[])[1]}`);
+  log(`  autoFilter: ${(sxml.match(/<autoFilter ref="([^"]+)"/)||[])[1]}`);
+  log(`  conditionalFormatting sqref: ${(sxml.match(/<conditionalFormatting sqref="([^"]+)"/g)||[]).join(' | ')}`);
+  log(`  shared formula 정의 수: ${(sxml.match(/t="shared" ref=/g)||[]).length}`);
+  log(`  mergeCells: ${(sxml.match(/<mergeCell ref="[^"]+"/g)||[]).join(' ')}`);
+  const wxml = new TextDecoder().decode(zip.get('xl/workbook.xml'));
+  log(`  definedNames: ${(wxml.match(/<definedName[^>]*>[^<]*<\/definedName>/g)||[]).join(' | ')}`);
+
+  await fetch('/save', { method:'POST', headers:{'X-Filename':'PROPAGATED.xlsx'}, body: blob });
+  log('\n  → out/PROPAGATED.xlsx 저장 (엑셀 검증용)');
+
+  hd('STAGE 7 — 멱등성 (같은 학습을 결과 파일에 또 넣기)');
+  const r2 = await FProp.propagate(agencyBytes, await blob.arrayBuffer(),
+    { agencyName: '학습.xlsx', targetName: 'PROPAGATED.xlsx' });
+  log(`  2회차: 신규삽입 ${r2.report.inserted} · 갱신 ${r2.report.updated} · 변화없음 ${r2.report.unchanged}`);
+  log(`  → 신규 0, 갱신 0 이어야 정상`);
+  if (r2.report.updated) r2.report.changes.filter(c=>c.kind==='updated').slice(0,5).forEach(c =>
+    log('    ' + JSON.stringify(c.diffs)));
+  await fetch('/save', { method:'POST', headers:{'X-Filename':'PROPAGATED_2X.xlsx'}, body: r2.blob });
+}
+main().then(() => { document.getElementById('out').textContent = L.join('\n'); })
+      .catch(e => { document.getElementById('out').textContent = L.join('\n') + '\n\nFATAL: ' + e.stack; });
+</script>
+</body>
+</html>

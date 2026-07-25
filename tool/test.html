@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farmkogls Console — test harness</title>
+<style>
+  body { font: 12px/1.5 ui-monospace, Consolas, monospace; background:#0f1115; color:#d7dce5; padding:16px; }
+  pre  { white-space: pre-wrap; }
+  .ok  { color:#5ddba0 } .bad { color:#ff7b72 } .hd { color:#79c0ff; font-weight:700 }
+</style>
+</head>
+<body>
+<h3>Test harness — open the console, or read #out below</h3>
+<pre id="out">running…</pre>
+
+<script src="src/zip.js"></script>
+<script src="src/xlsx-read.js"></script>
+<script src="src/normalize.js"></script>
+<script src="src/parse.js"></script>
+<script src="src/merge.js"></script>
+<script src="src/aggregate.js"></script>
+<script src="src/xlsx-write.js"></script>
+<script src="src/export.js"></script>
+<script>
+const OUT = document.getElementById('out');
+const L = [];
+function log(...a) { L.push(a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' ')); }
+function hd(s) { L.push('\n=== ' + s + ' ==='); }
+
+const FILES = [
+  'HAKSEUP.xlsx', 'FES_AGENCY.xlsx', 'SKS_ROB.xlsx', 'CCS_ROB.xlsx',
+  'BK_SHEET_EXPORT_3RDCTRY.xlsx', 'DF_CALCULATOR_CSC_CCS.xlsx',
+];
+
+async function fetchBuf(n) {
+  const r = await fetch('testdata/' + n);
+  if (!r.ok) throw new Error(n + ' HTTP ' + r.status);
+  return await r.arrayBuffer();
+}
+
+async function main() {
+  log('DecompressionStream available: ' + FZip.hasNativeInflate);
+
+  // ---------- Stage 1: raw read ----------
+  hd('STAGE 1 — workbook read');
+  const wbs = {};
+  for (const f of FILES) {
+    try {
+      const t0 = performance.now();
+      const wb = await FXlsxRead.readWorkbook(await fetchBuf(f), f);
+      wbs[f] = wb;
+      const errs = wb.sheets.filter(s => s.error);
+      log(`OK  ${f.padEnd(32)} sheets=${String(wb.sheets.length).padStart(3)} ` +
+          `${Math.round(performance.now() - t0)}ms` + (errs.length ? ` ERRORS=${errs.length}` : ''));
+      errs.slice(0, 3).forEach(s => log('     !! ' + s.name + ': ' + s.error));
+    } catch (e) { log('BAD ' + f + ' -> ' + e.message); }
+  }
+
+  // ---------- Stage 2: spot-check known cells ----------
+  hd('STAGE 2 — spot checks against known values');
+  const checks = [
+    ['HAKSEUP.xlsx', 'FES CSC BK FCST', 5, 4, 'SVC NAME : CSC'],
+    ['HAKSEUP.xlsx', 'FES CSC BK FCST', 7, 12, "20'DV"],
+    ['HAKSEUP.xlsx', 'FES CSC BK FCST', 8, 5, 'MELBOURNE BRIDGE'],
+    ['HAKSEUP.xlsx', 'FES CSC BK FCST', 8, 12, 24],
+    ['HAKSEUP.xlsx', 'FES CSC BK FCST', 8, 19, 40],
+    ['HAKSEUP.xlsx', 'FES SKS BK FCST', 8, 10, 'MYPKG(N)'],
+    ['FES_AGENCY.xlsx', 'FES BK FCST', 7, 6, '1st Leg Vessel'],
+    ['FES_AGENCY.xlsx', 'FES BK FCST', 8, 6, 'TIGER CHENNAI 2602W'],
+    ['FES_AGENCY.xlsx', 'FES BK FCST', 8, 25, 16],
+    ['FES_AGENCY.xlsx', 'FES BK FCST', 379, 2, 'Remark'],
+    ['FES_AGENCY.xlsx', 'Schedule', 4, 5, 'KRPUS'],
+    ['SKS_ROB.xlsx', 'SKS BSA ', 4, 2, 'Glory Light 2607W'],
+    ['CCS_ROB.xlsx', 'WAN HAI 521', 3, 32, 54],
+    ['BK_SHEET_EXPORT_3RDCTRY.xlsx', 'W521 W042(0726)', 12, 4, 'B/L No.'],
+    ['BK_SHEET_EXPORT_3RDCTRY.xlsx', 'W521 W042(0726)', 10, 3, 'CCS'],
+    ['BK_SHEET_EXPORT_3RDCTRY.xlsx', 'W521 W042(0726)', 14, 5, 'SARJAK'],
+    ['DF_CALCULATOR_CSC_CCS.xlsx', "BTL_CCS(JUL 26')", 7, 3, 850],
+    ['DF_CALCULATOR_CSC_CCS.xlsx', "BTL_CCS(JUL 26')", 8, 3, 70],
+  ];
+  let pass = 0, fail = 0;
+  for (const [f, s, r, c, want] of checks) {
+    const wb = wbs[f];
+    const sh = wb && wb.byName[s];
+    if (!sh) { log(`BAD  ${f} :: [${s}] sheet not found`); fail++; continue; }
+    const got = sh.get(r, c);
+    const g = got instanceof Date ? got.toISOString().slice(0, 10) : got;
+    const okv = (typeof want === 'number') ? Math.abs(Number(g) - want) < 1e-9
+                                           : String(g).trim() === String(want).trim();
+    if (okv) { pass++; }
+    else { fail++; log(`BAD  ${f} [${s}] R${r}C${c}: want=${JSON.stringify(want)} got=${JSON.stringify(g)}`); }
+  }
+  log(`spot checks: ${pass} pass / ${fail} fail`);
+
+  // ---------- Stage 3: date handling ----------
+  hd('STAGE 3 — dates');
+  const csc = wbs['HAKSEUP.xlsx'].byName['FES CSC BK FCST'];
+  for (let r = 8; r <= 14; r++) {
+    const d = csc.get(r, 8);
+    log(`  R${r} ETD raw=${d instanceof Date ? d.toISOString().slice(0,10) : JSON.stringify(d)}` +
+        `  WK(sheet)=${csc.get(r,7)}` +
+        (window.FNorm ? `  WK(calc)=${FNorm.excelWeekNum(d)}` : ''));
+  }
+
+  // ---------- Stage 4+: pipeline (only if modules loaded) ----------
+  if (window.FParse) {
+    hd('STAGE 4 — parse to canonical records');
+    let all = [], voy = [], bsa = [], df = [], rob = [];
+    const perFile = {};
+    for (const f of FILES) {
+      if (!wbs[f]) continue;
+      const res = FParse.parseWorkbook(wbs[f]);
+      perFile[f] = res;
+      log(`  ${f.padEnd(32)} sheets=${res.sheets.length} records=${res.records.length}` +
+          ` voy=${res.voyages.length} bsa=${res.bsa.length} df=${res.df.length} rob=${res.rob.length}` +
+          ` skipped=${res.skipped.length}`);
+      const kinds = {};
+      res.sheets.forEach(s => { kinds[s.kind] = (kinds[s.kind] || 0) + 1; });
+      log('      kinds: ' + JSON.stringify(kinds));
+      res.skipped.slice(0, 4).forEach(s => log(`      skip [${s.sheet}] ${s.why}`));
+      all = all.concat(res.records); voy = voy.concat(res.voyages);
+      bsa = bsa.concat(res.bsa); df = df.concat(res.df); rob = rob.concat(res.rob);
+    }
+    log(`  TOTAL records=${all.length} voyages=${voy.length} bsa=${bsa.length} df=${df.length} rob=${rob.length}`);
+
+    // BK-sheet context quality
+    const bk = (perFile['BK_SHEET_EXPORT_3RDCTRY.xlsx'] || {sheets:[]}).sheets.filter(s => s.kind === 'bkSheet');
+    log('  BK sheet contexts (first 8): ');
+    bk.slice(0, 8).forEach(s => log(`      ${s.sheet.padEnd(28)} ${s.note}`));
+
+    // ROB BSA extraction
+    log('  ROB BSA (first 8): ' + rob.slice(0, 8).map(r => `${r.vessel}${r.voy ? ' ' + r.voy : ''}=${r.bsaTeu}/${r.bsaTon}`).join(', '));
+
+    if (window.FMerge) {
+      hd('STAGE 5 — merge');
+      // Feed ROB caps in as voyage metadata too.
+      const voyAll = voy.concat(rob.map(r => ({
+        srcFile: r.srcFile, srcSheet: r.srcSheet, key: r.key,
+        vessel: r.vessel, voy: r.voy, bsaTeu: r.bsaTeu, bsaTon: r.bsaTon, bsaRank: 1,
+      })));
+      const st = FMerge.createStore();
+      const r1 = FMerge.ingest(st, all, {
+        label: 'all', files: FILES, voyages: voyAll, bsa, df,
+      });
+      log(`  added=${r1.added} updated=${r1.updated} unchanged=${r1.unchanged} cancelled=${r1.cancelled}`);
+      log(`  store size=${st.records.length}   voyage meta=${Object.keys(st.voyages).length}  df=${st.df.length}`);
+      log(`  dedupe: ${all.length} parsed -> ${st.records.length} unique (${all.length - st.records.length} collapsed)`);
+
+      // Which sources collided? (a proxy for master<->BK-sheet overlap)
+      const bySrc = {};
+      st.records.forEach(r => { bySrc[r.srcKind] = (bySrc[r.srcKind] || 0) + 1; });
+      log('  winning source kind: ' + JSON.stringify(bySrc));
+      const withBsa = Object.values(st.voyages).filter(v => v.bsaTeu).length;
+      log(`  voyages with a BSA cap: ${withBsa} / ${Object.keys(st.voyages).length}`);
+
+      const r2 = FMerge.ingest(st, all, { label: 'again' });
+      log(`  re-ingest identical: added=${r2.added} updated=${r2.updated} unchanged=${r2.unchanged}`);
+      if (r2.added) log('  !! re-ingest added rows — keys are not stable');
+
+      if (window.FAgg) {
+        hd('STAGE 6 — aggregate');
+        const ag = FAgg.build(st);
+        log('  totals: ' + JSON.stringify(ag.totals));
+        log('  services: ' + ag.byService.map(s => `${s.key}=${s.teu}`).join(' '));
+        log('  weeks: ' + ag.byWeek.slice(0, 14).map(w => `W${w.key}=${w.teu}`).join(' '));
+        log('  top lanes: ' + ag.byLane.slice(0, 8).map(l => `${l.key}=${l.teu}`).join(' '));
+        log('  parties: ' + ag.byParty.slice(0, 8).map(l => `${l.key}=${l.teu}`).join(' '));
+        log('  class: ' + ag.byClass.map(l => `${l.key}=${l.teu}`).join(' '));
+        log('  mix: ' + ag.mix.map(m => `${m.key}:${m.units}u/${m.teu}t`).join(' '));
+        log('  voyages: ' + ag.byVoyage.length);
+        log('  --- voyages with BSA, most recent 14 ---');
+        log('      ' + 'VESSEL'.padEnd(22) + 'VOY'.padEnd(8) + 'SVC'.padEnd(5) +
+            'ETD'.padEnd(12) + 'ROWS'.padStart(5) + 'TEU'.padStart(8) +
+            'PEAK'.padStart(7) + 'BSA'.padStart(6) + 'REM'.padStart(7) + 'UTIL'.padStart(8));
+        ag.byVoyage.filter(v => v.bsaTeu && v.rows).slice(-14).forEach(v =>
+          log('      ' + String(v.vessel).padEnd(22) + String(v.voy).padEnd(8) +
+              String(v.svc).padEnd(5) + String(v.etd || '-').padEnd(12) +
+              String(v.rows).padStart(5) + String(v.teu).padStart(8) +
+              String(v.peakTeu).padStart(7) + String(v.bsaTeu).padStart(6) +
+              String(v.remainTeu).padStart(7) + (v.utilPct + '%').padStart(8)));
+        log('  --- a ROB plan (first voyage with a BSA and traffic) ---');
+        const vv = ag.byVoyage.find(v => v.bsaTeu && v.rows > 4);
+        if (vv) {
+          log(`      ${vv.vessel} ${vv.voy} (${vv.svc})  BSA ${vv.bsaTeu} TEU / ${vv.bsaTon} T`);
+          log('      ' + 'PORT'.padEnd(9) + 'ETD'.padEnd(12) + 'LOAD'.padStart(7) +
+              'DISCH'.padStart(7) + 'ONBRD'.padStart(7) + 'REM'.padStart(7) + 'TON'.padStart(9));
+          vv.rob.legs.forEach(l => log('      ' + String(l.port).padEnd(9) +
+              String(l.etd || '-').padEnd(12) + String(l.loadTeu).padStart(7) +
+              String(l.dischTeu).padStart(7) + String(l.onboardTeu).padStart(7) +
+              String(l.remainTeu).padStart(7) + String(l.onboardTon).padStart(9)));
+        }
+        log('  alerts (' + ag.alerts.length + ') first 10:');
+        ag.alerts.slice(0, 10).forEach(a => log(`      [${a.level}] ${a.text}`));
+      }
+
+      if (window.FExport) {
+        hd('STAGE 7 — export round-trip');
+        const blob = await FExport.buildWorkbook(st, FAgg.build(st));
+        log(`  blob bytes=${blob.size}`);
+        const wb2 = await FXlsxRead.readWorkbook(await blob.arrayBuffer(), 'export.xlsx');
+        log(`  re-read sheets: ${wb2.sheets.map(s => s.name + '(' + s.nrows + ')').join(', ')}`);
+        const m = wb2.byName['MASTER BK FCST'];
+        if (m) {
+          log('  header: ' + Array.from({length:12},(_,i)=>m.get(1,i+1)).join(' | '));
+          log('  row2  : ' + Array.from({length:12},(_,i)=>{
+            const v = m.get(2,i+1); return v instanceof Date ? v.toISOString().slice(0,10) : v;
+          }).join(' | '));
+        }
+      }
+    }
+  } else {
+    hd('pipeline modules not present yet — stages 4-7 skipped');
+  }
+
+  OUT.textContent = L.join('\n');
+}
+main().catch(e => { OUT.textContent = L.join('\n') + '\n\nFATAL: ' + e.stack; });
+</script>
+</body>
+</html>

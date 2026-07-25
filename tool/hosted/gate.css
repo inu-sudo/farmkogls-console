@@ -1,0 +1,241 @@
+/* ============================================================================
+   PIN gate — extends the console's existing token system rather than replacing
+   it. The field behind the card stays deep-hull navy in both themes (a berth at
+   dusk); the card and the console itself follow the viewer's theme.
+   ========================================================================= */
+#gate {
+  --g-hull:  #0a1420;
+  --g-sea:   #15273c;
+  --g-card:  #ffffff;
+  --g-ink:   #101822;
+  --g-ink-2: #55616f;
+  --g-ink-3: #8b96a3;
+  --g-line:  #dde4ec;
+  --g-slot:  #eef2f7;
+  --g-signal:#2f6fd0;
+  --g-bad:   #c0392b;
+  --g-csc:   #3c6fd1;
+  --g-nwx:   #17997a;
+  --g-ccs:   #c98a05;
+  --g-sks:   #d9642a;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px 18px;
+  overflow: auto;
+  background:
+    radial-gradient(120% 90% at 50% 8%, var(--g-sea) 0%, var(--g-hull) 62%, #060d16 100%);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: dark) {
+  #gate {
+    --g-card:  #161d27;
+    --g-ink:   #e7edf5;
+    --g-ink-2: #a3aeba;
+    --g-ink-3: #78838f;
+    --g-line:  #2b3441;
+    --g-slot:  #1e2732;
+    --g-signal:#6ba3f5;
+  }
+}
+:root[data-theme="dark"] #gate {
+  --g-card: #161d27; --g-ink: #e7edf5; --g-ink-2: #a3aeba; --g-ink-3: #78838f;
+  --g-line: #2b3441; --g-slot: #1e2732; --g-signal: #6ba3f5;
+}
+:root[data-theme="light"] #gate {
+  --g-card: #ffffff; --g-ink: #101822; --g-ink-2: #55616f; --g-ink-3: #8b96a3;
+  --g-line: #dde4ec; --g-slot: #eef2f7; --g-signal: #2f6fd0;
+}
+
+#gate[hidden] { display: none; }
+
+/* ---- the port-rotation line behind the card ---------------------------- */
+.gate-field {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: min(46vh, 320px);
+  color: rgba(140, 190, 235, .17);
+  pointer-events: none;
+}
+.gate-rot { width: 100%; height: 100%; display: block; }
+.gate-calls circle { fill: rgba(160, 205, 245, .32); }
+
+/* ---- card -------------------------------------------------------------- */
+.gate-card {
+  position: relative;
+  width: 100%;
+  max-width: 424px;
+  background: var(--g-card);
+  color: var(--g-ink);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45), 0 2px 8px rgba(0, 0, 0, .3);
+  overflow: hidden;
+}
+
+/* the four service loops, in their own colours — this is the fleet, not trim */
+.gate-loops { display: flex; height: 3px; }
+.gate-loops i { flex: 1; display: block; }
+.gate-loops i[data-svc="CSC"] { background: var(--g-csc); }
+.gate-loops i[data-svc="NWX"] { background: var(--g-nwx); }
+.gate-loops i[data-svc="CCS"] { background: var(--g-ccs); }
+.gate-loops i[data-svc="SKS"] { background: var(--g-sks); }
+
+.gate-head { padding: 26px 26px 4px; }
+.gate-eyebrow {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--g-ink-3);
+}
+#gate h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+  color: var(--g-ink);
+}
+.gate-sub {
+  margin: 9px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--g-ink-2);
+  max-width: 34ch;
+}
+.gate-sub span {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: .05em;
+  color: var(--g-ink-3);
+}
+
+/* ---- pin --------------------------------------------------------------- */
+.gate-form { padding: 20px 26px 4px; }
+.gate-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--g-ink-3);
+  margin-bottom: 9px;
+}
+.gate-cells { display: flex; gap: 10px; }
+.gate-cells .cell {
+  flex: 1;
+  aspect-ratio: 4 / 5;
+  max-height: 76px;
+  display: grid;
+  place-items: center;
+  background: var(--g-slot);
+  border: 1px solid var(--g-line);
+  border-radius: 9px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--g-ink);
+  transition: border-color .14s, background .14s, transform .14s;
+}
+.gate-cells .cell.filled { border-color: var(--g-signal); background: var(--g-card); }
+.gate-cells .cell.pop { animation: gate-pop .16s ease-out; }
+.gate-cells .cell.active {
+  border-color: var(--g-signal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--g-signal) 22%, transparent);
+}
+@keyframes gate-pop { 0% { transform: scale(.9); } 100% { transform: scale(1); } }
+
+#gate.bad .gate-cells { animation: gate-shake .34s; }
+#gate.bad .gate-cells .cell { border-color: var(--g-bad); }
+@keyframes gate-shake {
+  0%,100% { transform: translateX(0); }
+  18% { transform: translateX(-7px); } 38% { transform: translateX(6px); }
+  58% { transform: translateX(-4px); } 78% { transform: translateX(2px); }
+}
+
+/* keeps the mobile keyboard reachable without showing a second field */
+.gate-proxy {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+  border: 0; padding: 0;
+  left: 26px; top: 50%;
+}
+.gate-proxy:focus { outline: none; }
+.gate-proxy:focus-visible + .gate-msg { color: var(--g-ink-2); }
+
+.gate-msg {
+  margin: 12px 0 0;
+  min-height: 1.4em;
+  font-size: 12.5px;
+  color: var(--g-ink-3);
+}
+#gate.bad .gate-msg { color: var(--g-bad); font-weight: 500; }
+#gate.ok .gate-msg { color: #1f8a5b; font-weight: 500; }
+
+/* ---- keypad ------------------------------------------------------------ */
+.gate-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+.gate-pad button {
+  appearance: none;
+  padding: 13px 0;
+  border: 1px solid var(--g-line);
+  border-radius: 9px;
+  background: var(--g-card);
+  color: var(--g-ink);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, transform .08s;
+}
+.gate-pad button.wide { font-family: var(--sans); font-size: 13px; font-weight: 500; }
+.gate-pad button:hover { background: var(--g-slot); border-color: var(--g-ink-3); }
+.gate-pad button:active { transform: translateY(1px); }
+.gate-pad button:focus-visible {
+  outline: 2px solid var(--g-signal);
+  outline-offset: 2px;
+}
+
+/* ---- footer ------------------------------------------------------------ */
+.gate-foot {
+  margin-top: 18px;
+  padding: 15px 26px 22px;
+  border-top: 1px solid var(--g-line);
+}
+.gate-foot p { margin: 0; font-size: 12px; line-height: 1.55; color: var(--g-ink-2); }
+.gate-caveat { margin-top: 8px !important; color: var(--g-ink-3) !important; font-size: 11.5px !important; }
+.gate-caveat b { color: var(--g-ink-2); font-weight: 600; }
+
+/* ---- unlock transition ------------------------------------------------- */
+#gate.leaving { animation: gate-out .34s ease-in forwards; }
+@keyframes gate-out { to { opacity: 0; transform: scale(1.015); } }
+
+/* ---- hosted-only chrome inside the console ----------------------------- */
+.hosted-btn { margin-left: 0; }
+#lockBtn { border-color: rgba(255, 255, 255, .28); }
+
+@media (max-width: 420px) {
+  .gate-head { padding: 22px 18px 4px; }
+  .gate-form { padding: 18px 18px 4px; }
+  .gate-foot { padding: 14px 18px 20px; }
+  #gate h1 { font-size: 22px; }
+  .gate-cells .cell { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gate *, #gate { animation: none !important; transition: none !important; }
+}

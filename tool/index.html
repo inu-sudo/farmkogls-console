@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farmkogls Booking Console</title>
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo"><b>Farmkogls Booking Console</b><span>CSC · NWX · CCS · SKS</span></div>
+    <div class="stat" id="hstat"></div>
+    <button class="btn ghost sm" id="btnTheme">◐ Auto</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="drop" id="drop">
+    <div>
+      <h3>이번 주 엑셀 파일을 여기에 끌어다 놓으세요</h3>
+      <p><b>학습.xlsx</b>(에이전트 예보)와 <b>FES AGENCY</b>(통합 등록부)를 함께 넣으면
+         등록부가 갱신된 새 사본으로 나옵니다. 다른 파일을 넣으면 분석 화면도 함께 채워집니다.</p>
+      <button class="btn primary" id="btnPick">파일 선택…</button>
+      <progress id="prog" hidden></progress>
+      <div class="kinds">
+        <span class="chip">FES &lt;SVC&gt; BK FCST → 입력</span>
+        <span class="chip">FES BK FCST → 갱신 대상</span>
+        <span class="chip">BK SHEET (마감)</span>
+        <span class="chip">Schedule</span>
+        <span class="chip">BSA</span>
+        <span class="chip">DF contract</span>
+        <span class="chip">ROB</span>
+        <span class="chip">.json</span>
+      </div>
+    </div>
+    <input type="file" id="file" multiple accept=".xlsx,.xlsm,.xltx,.json" hidden>
+  </div>
+
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div id="filters"></div>
+  <main id="view"></main>
+
+  <div class="foot">
+    <button class="btn primary" id="btnExport">⬇ Export Excel</button>
+    <button class="btn" id="btnSaveProj">Save project file</button>
+    <button class="btn danger" id="btnClear">Clear register</button>
+    <span class="sp"></span>
+    <span>Everything runs in this browser — no file ever leaves your machine.
+      The register is kept in local storage between sessions.</span>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="src/zip.js"></script>
+<script src="src/xlsx-read.js"></script>
+<script src="src/xlsx-write.js"></script>
+<script src="src/xlsx-edit.js"></script>
+<script src="src/normalize.js"></script>
+<script src="src/propagate.js"></script>
+<script src="src/parse.js"></script>
+<script src="src/merge.js"></script>
+<script src="src/aggregate.js"></script>
+<script src="src/export.js"></script>
+<script src="src/ui.js"></script>
+</body>
+</html>

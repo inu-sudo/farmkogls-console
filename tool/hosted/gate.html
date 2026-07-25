@@ -1,0 +1,73 @@
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="gate-field" aria-hidden="true">
+    <svg class="gate-rot" viewBox="0 0 1200 300" preserveAspectRatio="none" focusable="false">
+      <path d="M0 210 C 180 210, 220 120, 400 120 S 620 60, 800 60 S 1040 150, 1200 150"
+            fill="none" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke"/>
+      <path d="M0 250 C 220 250, 260 180, 470 180 S 700 130, 900 130 S 1080 200, 1200 200"
+            fill="none" stroke="currentColor" stroke-width="1" opacity=".5"
+            vector-effect="non-scaling-stroke"/>
+      <g class="gate-calls">
+        <circle cx="0"    cy="210" r="3.5"/><circle cx="400"  cy="120" r="3.5"/>
+        <circle cx="800"  cy="60"  r="3.5"/><circle cx="1200" cy="150" r="3.5"/>
+      </g>
+    </svg>
+  </div>
+
+  <section class="gate-card">
+    <div class="gate-loops" aria-hidden="true">
+      <i data-svc="CSC"></i><i data-svc="NWX"></i><i data-svc="CCS"></i><i data-svc="SKS"></i>
+    </div>
+
+    <header class="gate-head">
+      <p class="gate-eyebrow">FARMKOGLS &middot; 팜코지엘에스</p>
+      <h1 id="gate-title">Booking Console</h1>
+      <p class="gate-sub">
+        에이전트 예보를 통합 등록부에 반영하고, 항차별 선복을 확인합니다.
+        <span>CSC &middot; NWX &middot; CCS &middot; SKS</span>
+      </p>
+    </header>
+
+    <form class="gate-form" id="gate-form" novalidate>
+      <label class="gate-label" for="pin-proxy">PIN 4자리</label>
+
+      <div class="gate-cells" id="gate-cells">
+        <span class="cell" data-i="0"></span>
+        <span class="cell" data-i="1"></span>
+        <span class="cell" data-i="2"></span>
+        <span class="cell" data-i="3"></span>
+      </div>
+
+      <input id="pin-proxy" class="gate-proxy" type="text" inputmode="numeric"
+             autocomplete="off" autocapitalize="off" spellcheck="false"
+             maxlength="4" aria-describedby="gate-msg" aria-label="PIN 4자리 입력">
+
+      <p class="gate-msg" id="gate-msg" role="status" aria-live="polite">숫자 4자리를 입력하세요</p>
+
+      <div class="gate-pad" id="gate-pad">
+        <button type="button" data-k="1">1</button>
+        <button type="button" data-k="2">2</button>
+        <button type="button" data-k="3">3</button>
+        <button type="button" data-k="4">4</button>
+        <button type="button" data-k="5">5</button>
+        <button type="button" data-k="6">6</button>
+        <button type="button" data-k="7">7</button>
+        <button type="button" data-k="8">8</button>
+        <button type="button" data-k="9">9</button>
+        <button type="button" data-k="clear" class="wide">지우기</button>
+        <button type="button" data-k="0">0</button>
+        <button type="button" data-k="back" aria-label="한 자 지우기">&#9003;</button>
+      </div>
+    </form>
+
+    <footer class="gate-foot">
+      <p>
+        올린 엑셀은 이 브라우저 안에서만 열립니다. 서버로 전송되지 않습니다.
+      </p>
+      <p class="gate-caveat">
+        PIN은 링크를 아는 사람 사이의 <b>가벼운 잠금</b>입니다.
+        페이지 안에서 확인하므로 마음먹으면 우회할 수 있습니다 —
+        기밀 자료의 실제 보호 수단으로 삼지 마세요.
+      </p>
+    </footer>
+  </section>
+</div>
