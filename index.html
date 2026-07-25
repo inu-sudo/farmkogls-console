@@ -4914,12 +4914,14 @@ progress { width: 200px; height: 6px; }
         const bytes = await f.arrayBuffer();
         const wb = await global.FXlsxRead.readWorkbook(bytes, f.name);
 
-        /* Remember the two workbooks the in-place update needs. */
-        const names = wb.sheets.map((s) => s.name);
-        if (names.indexOf(global.FProp.TARGET_SHEET) >= 0) {
+        /* Remember the two workbooks the in-place update needs.
+           NB: this list is the workbook's SHEET names — keep it distinct from
+           `names`, the list of ingested file names used for the batch label. */
+        const sheetNames = wb.sheets.map((s) => s.name);
+        if (sheetNames.indexOf(global.FProp.TARGET_SHEET) >= 0) {
           App.prop.target = { name: f.name, bytes, mtime: f.lastModified || 0 };
           App.prop.report = null; App.prop.blob = null;
-        } else if (names.some((nm) => /FES\s+(CSC|NWX|CCS|SKS)\s+BK\s*FCST/i.test(nm))) {
+        } else if (sheetNames.some((nm) => /FES\s+(CSC|NWX|CCS|SKS)\s+BK\s*FCST/i.test(nm))) {
           App.prop.agency = { name: f.name, bytes, mtime: f.lastModified || 0 };
           App.prop.report = null; App.prop.blob = null;
         }
@@ -4958,7 +4960,7 @@ progress { width: 200px; height: 6px; }
     })));
 
     const entry = global.FMerge.ingest(App.store, recs, {
-      label: names.length === 1 ? names[0] : `${names.length} files`,
+      label: names.length === 1 ? names[0] : `${names.length}개 파일`,
       files: names, voyages: voyAll, bsa, df,
     });
     App.lastReport = report;
