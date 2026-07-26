@@ -2732,6 +2732,14 @@ progress { width: 200px; height: 6px; }
       report.rowsShifted = { from: at, by: inserts.length, cancelListMovedTo: sv.cancelRow ? sv.cancelRow + inserts.length : null };
     }
 
+    if (report.updated) {
+      const where = report.changes.filter((c) => c.kind === 'updated')
+        .map((c) => c.row).sort((a, b) => a - b);
+      report.notes.push(
+        `갱신 ${report.updated}건은 맨 아래가 아니라 등록부의 기존 행 자리에 반영되었습니다` +
+        (where.length ? ` (행 ${where.join(', ')})` : '') +
+        `. 맨 아래에 추가되는 것은 신규 ${inserts.length}건뿐입니다.`);
+    }
     const tokenMatched = updates.filter((u) => u.via === 'token').length;
     if (tokenMatched) {
       report.notes.push(
