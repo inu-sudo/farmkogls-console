@@ -12,7 +12,14 @@
   var PIN_HASH = '__PIN_HASH__';          // sha-256 of SALT + ':' + pin
   var SALT = '__PIN_SALT__';
   var LEN = 4;
-  var UNLOCK_KEY = 'farmkogls.gate.unlocked.v1';
+
+  // sessionStorage, NOT localStorage: the unlock must not outlive the browsing
+  // session. It used to persist, so anyone opening the link afterwards on that
+  // machine walked straight in and the PIN looked switched off. A refresh
+  // during work still does not re-prompt; closing the tab or the browser does.
+  var UNLOCK_KEY = 'farmkogls.gate.unlocked.v2';
+  var store = null;
+  try { store = window.sessionStorage; } catch (e) { store = null; }
 
   var gate = document.getElementById('gate');
   var cells = Array.prototype.slice.call(document.querySelectorAll('#gate-cells .cell'));
@@ -63,7 +70,7 @@
       gate.classList.remove('bad');
       gate.classList.add('ok');
       msg.textContent = '확인되었습니다. 여는 중…';
-      try { localStorage.setItem(UNLOCK_KEY, '1'); } catch (e) { /* private mode */ }
+      try { if (store) store.setItem(UNLOCK_KEY, '1'); } catch (e) { /* private mode */ }
       setTimeout(open, 260);
       return;
     }
@@ -177,7 +184,7 @@
   }
 
   function relock() {
-    try { localStorage.removeItem(UNLOCK_KEY); } catch (e) { /* ignore */ }
+    try { if (store) store.removeItem(UNLOCK_KEY); } catch (e) { /* ignore */ }
     location.reload();
   }
 
@@ -264,7 +271,9 @@
 
   /* ---- start ----------------------------------------------------------- */
   var already = false;
-  try { already = localStorage.getItem(UNLOCK_KEY) === '1'; } catch (e) { already = false; }
+  try { already = !!store && store.getItem(UNLOCK_KEY) === '1'; } catch (e) { already = false; }
+  // clear the old persistent flag so an earlier unlock cannot keep letting people in
+  try { localStorage.removeItem('farmkogls.gate.unlocked.v1'); } catch (e) { /* ignore */ }
   if (already) open();
   else { paint(); focusProxy(); }
 })();
