@@ -2302,6 +2302,31 @@ progress { width: 200px; height: 6px; }
            '|' + normBl(bl);
   }
 
+  /**
+   * Identifier lines inside a B/L cell, normalised. The cell is a small set:
+   * an agency number ("MSA/INMUN/EXP 26-27/0021") and/or a FES number
+   * ("FESPUS2607032"), sometimes with free-text notes underneath. A line
+   * counts as an identifier when it still contains a run of 4+ digits after
+   * normalisation; notes like "1 BUNDLE OF 4 X 20'FR EACH" never do.
+   *
+   * compact = the line had no '/'. FES/carrier-style numbers are unique on
+   * their own; agency numbers can be shared by split B/Ls (…0023 carries both
+   * FESPUS2607037 and FESPUS2607037A), so compact tokens bind first and agency
+   * tokens only bind when unambiguous.
+   */
+  function blIdTokens(bl) {
+    const n = N();
+    const out = [];
+    for (const line of String(bl == null ? '' : bl).split(/[\r\n]+/)) {
+      const t = line.trim();
+      if (!t || n.isPlaceholderBl(t)) continue;
+      const tok = normBl(t);
+      if (!/\d{4}/.test(tok)) continue;
+      out.push({ tok, compact: t.indexOf('/') < 0 });
+    }
+    return out;
+  }
+
   /** "E073" -> "073E"; leaves "26029E" / "2603E" alone. */
   function normVoy(v) {
     const s = String(v == null ? '' : v).trim().toUpperCase().replace(/\s+/g, '');
@@ -2426,9 +2451,12 @@ progress { width: 200px; height: 6px; }
     }
     const activeEnd = (cancelRow || s.maxRow + 1) - 1;
 
-    /* last row carrying real data, plus a match index over the active region */
+    /* last row carrying real data, plus match indexes over the active region:
+       whole-cell identity, and one entry per identifier line — a register row
+       often carries only one of a booking's two numbers */
     let lastData = hdr;
     const index = new Map();
+    const tokIndex = new Map();
     for (let r = hdr + 1; r <= activeEnd; r++) {
       const row = s.rows[r];
       if (!row) continue;
@@ -2441,8 +2469,12 @@ progress { width: 200px; height: 6px; }
       const k = matchKey(bl, cv(F.vsl1), cv(F.pol), cv(F.fpod));
       if (!index.has(k)) index.set(k, []);
       index.get(k).push(r);
+      for (const t of blIdTokens(bl)) {
+        if (!tokIndex.has(t.tok)) tokIndex.set(t.tok, []);
+        tokIndex.get(t.tok).push(r);
+      }
     }
-    return { sheet: s, hdr, cancelRow, activeEnd, lastData, index };
+    return { sheet: s, hdr, cancelRow, activeEnd, lastData, index, tokIndex };
   }
 
   /* ------------------------------------------------------------------ *
@@ -2515,9 +2547,19 @@ progress { width: 200px; height: 6px; }
     const sv = surveyRegister(pkg);
 
     /* Split into updates vs inserts. Each register row can be claimed once, so
-       three look-alike "Empty Repo" lines map to three rows, not all to one. */
+       three look-alike "Empty Repo" lines map to three rows, not all to one.
+
+       Matching runs in three passes of falling strictness. Whole-cell identity
+       alone is not enough: the register often carries only one of a booking's
+       two numbers ("FESPUS2607033" without the MSA line, or the MSA line
+       without the FESPUS one), and the forecast carries both — comparing whole
+       cells treated those as different bookings and inserted duplicates. */
     const updates = [], inserts = [];
-    const used = new Map();          // key -> how many of its rows are taken
+    const used = new Map();          // exact key -> how many of its rows are taken
+    const claimed = new Set();       // register rows already assigned this run
+    const pass1Miss = [];
+
+    /* pass 1 — whole-cell identity (placeholders can only ever match here) */
     for (const rec of recs) {
       const k = matchKey(rec.bl, rec.vslVoy, rec.pol, rec.fpod);
       rec.matchKey = k;
@@ -2525,10 +2567,43 @@ progress { width: 200px; height: 6px; }
       const taken = used.get(k) || 0;
       if (taken < rowsFor.length) {
         used.set(k, taken + 1);
-        updates.push({ rec, row: rowsFor[taken] });
+        claimed.add(rowsFor[taken]);
+        updates.push({ rec, row: rowsFor[taken], via: 'exact' });
       } else {
-        inserts.push(rec);
+        pass1Miss.push(rec);
       }
+    }
+
+    /* pass 2 — shared compact (FES/carrier-style) identifier */
+    const pass2Miss = [];
+    for (const rec of pass1Miss) {
+      let hit = 0;
+      if (!N().isPlaceholderBl(rec.bl)) {
+        for (const t of blIdTokens(rec.bl)) {
+          if (!t.compact) continue;
+          for (const r of sv.tokIndex.get(t.tok) || []) {
+            if (!claimed.has(r)) { hit = r; break; }
+          }
+          if (hit) break;
+        }
+      }
+      if (hit) { claimed.add(hit); updates.push({ rec, row: hit, via: 'token' }); }
+      else pass2Miss.push(rec);
+    }
+
+    /* pass 3 — shared agency identifier, but only when it names exactly one
+       remaining row (split B/Ls share the agency number, so ambiguity means
+       "don't guess") */
+    for (const rec of pass2Miss) {
+      let hit = 0;
+      if (!N().isPlaceholderBl(rec.bl)) {
+        for (const t of blIdTokens(rec.bl)) {
+          const rows = (sv.tokIndex.get(t.tok) || []).filter((r) => !claimed.has(r));
+          if (rows.length === 1) { hit = rows[0]; break; }
+        }
+      }
+      if (hit) { claimed.add(hit); updates.push({ rec, row: hit, via: 'token' }); }
+      else inserts.push(rec);
     }
 
     const report = {
@@ -2583,6 +2658,17 @@ progress { width: 200px; height: 6px; }
       if (rec.vgm) plan.push([F.vgm, rec.vgm, 'n', true]);
       if (rec.rate) plan.push([F.rate, rec.rate, 'n', true]);
 
+      /* the register often carries only one identifier line; when the forecast
+         knows strictly more, upgrade the cell so the next run matches exactly.
+         Never drop an identifier the register has and the forecast lacks. */
+      const curToks = blIdTokens(cur(F.bl)).map((t) => t.tok);
+      const recToks = blIdTokens(rec.bl).map((t) => t.tok);
+      if (rec.bl && recToks.length &&
+          recToks.some((t) => curToks.indexOf(t) < 0) &&
+          curToks.every((t) => recToks.indexOf(t) >= 0)) {
+        plan.push([F.bl, rec.bl, 's', true]);
+      }
+
       for (const [col, val, kind, active] of plan) {
         if (!active) continue;
         const before = cur(col);
@@ -2614,7 +2700,7 @@ progress { width: 200px; height: 6px; }
       if (diffs.length) {
         report.updated++;
         report.changes.push({
-          kind: 'updated', row: u.row, bl: rec.bl, svc: rec.svc,
+          kind: 'updated', row: u.row, bl: rec.bl, svc: rec.svc, via: u.via,
           src: `${rec.srcSheet} r${rec.srcRow}`, diffs,
         });
       } else {
@@ -2646,6 +2732,13 @@ progress { width: 200px; height: 6px; }
       report.rowsShifted = { from: at, by: inserts.length, cancelListMovedTo: sv.cancelRow ? sv.cancelRow + inserts.length : null };
     }
 
+    const tokenMatched = updates.filter((u) => u.via === 'token').length;
+    if (tokenMatched) {
+      report.notes.push(
+        `${tokenMatched}건은 등록부의 B/L NO가 부분적으로만 적혀 있어(두 번호 중 하나만) ` +
+        `식별자 단위로 대조해 기존 행을 갱신했습니다. 해당 행의 B/L NO는 두 번호를 모두 ` +
+        `갖도록 보강했습니다.`);
+    }
     if (report.tsRows.length) {
       report.notes.push(
         `T/S ${report.tsRows.length}건은 2nd Leg 선박·ETD·2nd SVC가 비어 있습니다. ` +
@@ -2685,7 +2778,7 @@ progress { width: 200px; height: 6px; }
 
   global.FProp = {
     propagate, readAgency, surveyRegister, classifyFiles, outName,
-    normVoy, normBl, TARGET_SHEET, H, F,
+    normVoy, normBl, blIdTokens, TARGET_SHEET, H, F,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
